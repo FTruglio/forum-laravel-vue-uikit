@@ -47,6 +47,16 @@
 							<li>
 								<a href="/threads">All Threads</a>
 							</li>
+							<li>
+								<button class="uk-button uk-button-default uk-float-left" type="button">Justify</button>
+								<div uk-dropdown="pos: bottom-justify; boundary: .boundary-align; boundary-align: true">
+									<ul class="uk-nav uk-dropdown-nav">
+										@foreach(App\Channel::all() as $channel)
+										<li><a href="/threads/{{$channel->slug}}">{{$channel->name}}</a></li>
+										@endforeach
+									</ul>
+								</div>
+							</li>
 						</ul>
 
 						<!-- Right Side Of Navbar -->
