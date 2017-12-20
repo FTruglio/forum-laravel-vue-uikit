@@ -3,11 +3,9 @@
 namespace Tests\Feature;
 
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
 
 class ParticipateInForum extends TestCase
 {
-    use DatabaseMigrations;
     
     /**
     * A basic test example.
@@ -28,11 +26,11 @@ class ParticipateInForum extends TestCase
     */
     public function an_authenticated_user_can_participate_in_forum_threads()
     {
-        $this->be($user = factory('App\User')->create());
+        $this->be($user = create('App\User'));
         
-        $thread = factory('App\Thread')->create();
+        $thread = create('App\Thread');
         
-        $reply = factory('App\Reply')->make();
+        $reply = make('App\Reply');
         $this->post($thread->path() . '/replies', $reply->toArray());
         
         $this->get($thread->path())

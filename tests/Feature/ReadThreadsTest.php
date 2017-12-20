@@ -3,16 +3,13 @@
 namespace Tests\Feature;
 
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
 
-class ExampleTest extends TestCase
+class ReadThreadsTest extends TestCase
 {
-    use DatabaseMigrations;
-    
     public function setUp()
     {
         parent::setUp();
-        $this->thread = factory('App\Thread')->create();
+        $this->thread = create('App\Thread');
     }
     /**
      * @test
@@ -40,8 +37,7 @@ class ExampleTest extends TestCase
      */
     public function a_user_can_read_replies_that_are_associated_With_a_thread()
     {
-        $reply = factory('App\Reply')
-        ->create(['thread_id' => $this->thread->id]);
+        $reply = create('App\Reply', ['thread_id' => $this->thread->id]);
         
         $response = $this->get($this->thread->path())
         ->assertSee($reply->body);
