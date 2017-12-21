@@ -20,7 +20,7 @@ class CreateThreadsTest extends TestCase
         $thread = create('App\Thread');
         $this->assertEquals("/threads/{$thread->channel->slug}/{$thread->id}", $thread->path());
     }
-    
+
     /**
     * A basic test example.
     * @test
@@ -31,13 +31,13 @@ class CreateThreadsTest extends TestCase
         $this->withExceptionHandling();
         $this->get('/threads/create')
         ->assertRedirect('/login');
-        
+
         $this->withExceptionHandling()
         ->post('/threads')
         ->assertRedirect('/login');
     }
-    
-    
+
+
     /**
     * A basic test example.
     * @test
@@ -46,17 +46,17 @@ class CreateThreadsTest extends TestCase
     public function an_authenticated_user_can_create_new_forum_threads()
     {
         $this->signIn();
-        
+
         $thread = make('App\Thread');
-        
+
         $response = $this->post('/threads', $thread->toArray());
-        
-        
+
+
         $this->get($response->headers->get('Location'))
         ->assertSee($thread->title)
         ->assertSee($thread->body);
     }
-    
+
     /**
     * validation for threads
     * @test
@@ -67,8 +67,8 @@ class CreateThreadsTest extends TestCase
         $this->publishThread(['title' => null])
         ->assertSessionHasErrors('title');
     }
-    
-    
+
+
     /**
     * validation for threads
     * @test
@@ -79,9 +79,9 @@ class CreateThreadsTest extends TestCase
         $this->publishThread(['body' => null])
         ->assertSessionHasErrors('body');
     }
-    
-    
-        /**
+
+
+    /**
     * validation for threads
     * @test
     * @return void
@@ -97,14 +97,48 @@ class CreateThreadsTest extends TestCase
         $this->publishThread(['channel_id' => 999])
         ->assertSessionHasErrors('channel_id');
     }
-    
-    
+
+
     public function publishThread($overrides)
     {
         $this->withExceptionHandling()->signIn();
-        
+
         $thread = make('App\Thread', $overrides);
-        
+
         return $this->post('/threads', $thread->toArray());
+    }
+
+    /**
+     * A basic test example.
+     * @test
+     * @return void
+     */
+    public function a_guest_cannot_delete_threads()
+    {
+        $this->withExceptionHandling();
+
+        $thread = create('App\Thread');
+        $response = $this->json('DELETE', $thread->path());
+        $response->assertStatus(401);
+    }
+
+    /**
+     * A basic test example.
+     * @test
+     * @return void
+     */
+    public function an_authenticated_user_can_delete_a_thread()
+    {
+        $this->signIn();
+
+        $thread = create('App\Thread');
+        $reply = create('App\Reply', ['thread_id' => $thread->id]);
+
+        $response = $this->json('DELETE', $thread->path());
+
+        $response->assertStatus(204);
+
+        $this->assertDatabaseMissing('replies', ['id' => $reply->id]);
+        $this->assertDatabaseMissing('threads', ['id' => $thread->id]);
     }
 }

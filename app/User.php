@@ -18,6 +18,19 @@ class User extends Authenticatable
         'name', 'email', 'password',
     ];
 
+    public function path()
+    {
+        return '/profiles/' . $this->name;
+    }
+    public function getRouteKeyName()
+    {
+        return 'name';
+    }
+    public function threads()
+    {
+        return $this->hasMany(Thread::class, 'user_id')->latest();
+    }
+
     /**
      * The attributes that should be hidden for arrays.
      *

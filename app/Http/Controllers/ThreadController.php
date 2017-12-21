@@ -21,10 +21,14 @@ class ThreadController extends Controller
     public function index(Channel $channel, ThreadFilters $filters)
     {
         $threads = $this->getThreads($channel, $filters);
-        
+
+        if (request()->wantsJson()) {
+            return $threads;
+        }
+
         return view('threads.index', compact('threads'));
     }
-    
+
     /**
     * Show the form for creating a new resource.
     *
@@ -34,7 +38,7 @@ class ThreadController extends Controller
     {
         return view('threads.create');
     }
-    
+
     /**
     * Store a newly created resource in storage.
     *
@@ -47,32 +51,32 @@ class ThreadController extends Controller
             'channel_id' => 'required|exists:channels,id',
             'title' => 'required',
             'body' => 'required'
-            ]);
-            
+        ]);
+
         $thread = Thread::create([
-                'user_id' => auth()->id(),
-                'channel_id' => request('channel_id'),
-                'title' => request('title'),
-                'body' => request('body'),
-                ]);
-                
+            'user_id' => auth()->id(),
+            'channel_id' => request('channel_id'),
+            'title' => request('title'),
+            'body' => request('body'),
+        ]);
+
         return redirect($thread->path());
     }
-            
+
     /**
     * Display the specified resource.
-    * @param $channelId
+    * @param $channel
     * @param  \App\Thread  $thread
     * @return \Illuminate\Http\Response
     */
-    public function show($channelId, Thread $thread)
+    public function show($channel, Thread $thread)
     {
         return view('threads.show', [
             'thread' => $thread,
             'replies' => $thread->replies()->paginate(20)
         ]);
     }
-            
+
     /**
     * Show the form for editing the specified resource.
     *
@@ -83,7 +87,7 @@ class ThreadController extends Controller
     {
         //
     }
-            
+
     /**
     * Update the specified resource in storage.
     *
@@ -95,29 +99,33 @@ class ThreadController extends Controller
     {
         //
     }
-            
+
     /**
     * Remove the specified resource from storage.
     *
     * @param  \App\Thread  $thread
     * @return \Illuminate\Http\Response
     */
-    public function destroy(Thread $thread)
+    public function destroy($channel, Thread $thread)
     {
-        //
+        $thread->replies()->delete();
+        $thread->delete();
+        if (request()->wantsJson()) {
+            return response([], 204);
+        }
+        return redirect('/threads');
     }
 
     /**
      * returns threads with filters
      */
-                
+
     public function getThreads($channel, $filters)
     {
-        $threads =  Thread::latest()->filter($filters)->get();
-        
+        $threads =  Thread::latest()->filter($filters);
         if ($channel->exists) {
             $threads->where('channel_id', $channel->id);
         }
-        return $threads;
+        return $threads->get();
     }
 }
