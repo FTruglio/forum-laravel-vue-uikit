@@ -45,16 +45,24 @@
 						<!-- Left Side Of Navbar -->
 						<ul class="nav navbar-nav">
 							<li>
-								<a href="/threads">All Threads</a>
+								<a class="uk-float-left" type="button">Browse</a>
+								<div uk-dropdown="pos: bottom-justify; boundary: .boundary-align; boundary-align: true; mode: click">
+									<ul class="uk-nav uk-dropdown-nav">
+										<li><a href="/threads">All Threads</a></li>
+										@if(auth()->check())
+										<li><a href="/threads?by={{ auth()->user()->name}}">My Threads</a></li>
+										@endif
+									</ul>
+								</div>
 							</li>
 							<li>
 								<a href="/threads/create">New Thread</a>
 							</li>
 							<li>
-								<button class="uk-button uk-button-default uk-float-left" type="button">Channels</button>
+								<a class="uk-float-left" type="button">Channels</a>
 								<div uk-dropdown="pos: bottom-justify; boundary: .boundary-align; boundary-align: true; mode: click">
 									<ul class="uk-nav uk-dropdown-nav">
-										@foreach(App\Channel::all() as $channel)
+										@foreach($channels as $channel)
 										<li><a href="/threads/{{$channel->slug}}">{{$channel->name}}</a></li>
 										@endforeach
 									</ul>

@@ -12,29 +12,29 @@ class ReadThreadsTest extends TestCase
         $this->thread = create('App\Thread');
     }
     /**
-     * @test
-     * @return void
-     */
-    public function a_user_can_view_all_threads()
+    * @test
+    * @return void
+    */
+    public function a_user_can_read_all_threads()
     {
         $response = $this->get('/threads')
         ->assertSee($this->thread->title);
     }
-
+    
     /**
-     * @test
-     * @return void
-     */
+    * @test
+    * @return void
+    */
     public function a_user_can_read_a_single_thread()
     {
         $response = $this->get($this->thread->path())
         ->assertSee($this->thread->title);
     }
-
+    
     /**
-     * @test
-     * @return void
-     */
+    * @test
+    * @return void
+    */
     public function a_user_can_read_replies_that_are_associated_With_a_thread()
     {
         $reply = create('App\Reply', ['thread_id' => $this->thread->id]);
@@ -42,21 +42,38 @@ class ReadThreadsTest extends TestCase
         $response = $this->get($this->thread->path())
         ->assertSee($reply->body);
     }
-
-        /**
-        * 
-        * @test
-        * @return void
-        */
-        public function a_user_can_filter_threads_according_to_a_channel()
-        {
-            $channel = create('App\Channel');
-
-            $threadInChannel = create('App\Thread', ['channel_id' => $channel->id]);
-            $threadNotInChannel = create('App\Thread');
-
-            $this->get('/threads/' . $channel->slug)
-            ->assertSee($threadInChannel->title)
-            ->assertDontSee($threadNotInChannel->title);
-        }
-}
+    
+    /**
+    * 
+    * @test
+    * @return void
+    */
+    public function a_user_can_filter_threads_according_to_a_channel()
+    {
+        $channel = create('App\Channel');
+        
+        $threadInChannel = create('App\Thread', ['channel_id' => $channel->id]);
+        $threadNotInChannel = create('App\Thread');
+        
+        $this->get('/threads/' . $channel->slug)
+        ->assertSee($threadInChannel->title)
+        ->assertDontSee($threadNotInChannel->title);
+    }
+    
+    /**
+    * filtering threads by username
+    * @test
+    * @return void
+    */
+    public function a_user_can_filter_threads_by_any_username()
+    {
+        $this->signIn(create('App\User', ['name' => 'johnDoe']));
+        
+        $threadByJohn = create('App\Thread', ['user_id' => auth()->id()]);
+        $threadNotByJohn = create('App\Thread');
+        
+        $this->get('/threads?by=johnDoe')
+        ->assertSee($threadByJohn->title)
+        ->assertDontSee($threadNotByJohn->title);
+    }
+}   

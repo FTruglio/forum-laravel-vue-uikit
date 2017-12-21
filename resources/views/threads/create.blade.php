@@ -15,7 +15,7 @@
 				<div class="uk-margin">
 				<select name="channel_id" id="" class="uk-select" required>
 					<option value="">Select a channel</option>
-					@foreach(App\channel::all() as $channel)
+					@foreach($channels as $channel)
 				 	<option value="{{$channel->id}}" {{old('channel_id') == $channel->id ? 'selected' : ' '}}>
 					 	{{$channel->name}}
 					 </option>
