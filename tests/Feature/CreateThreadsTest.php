@@ -90,7 +90,6 @@ class CreateThreadsTest extends TestCase
     {
         factory('App\Channel', 2)->create();
 
-
         $this->publishThread(['channel_id' => null])
         ->assertSessionHasErrors('channel_id');
 
@@ -113,13 +112,16 @@ class CreateThreadsTest extends TestCase
      * @test
      * @return void
      */
-    public function a_guest_cannot_delete_threads()
+    public function unauthorized_users_cannot_delete_threads()
     {
         $this->withExceptionHandling();
 
         $thread = create('App\Thread');
-        $response = $this->json('DELETE', $thread->path());
-        $response->assertStatus(401);
+        $this->delete($thread->path())->assertRedirect('/login');
+
+        // A user without permission cannot delete a thread
+        $this->signIn();
+        $this->delete($thread->path())->assertStatus(403);
     }
 
     /**
@@ -127,13 +129,12 @@ class CreateThreadsTest extends TestCase
      * @test
      * @return void
      */
-    public function an_authenticated_user_can_delete_a_thread()
+    public function authorized_user_can_delete_a_thread()
     {
         $this->signIn();
 
-        $thread = create('App\Thread');
-        $reply = create('App\Reply', ['thread_id' => $thread->id]);
-
+        $thread = create('App\Thread', [ 'user_id' => auth()->id() ]);
+        $reply = create('App\Reply', [ 'thread_id' => $thread->id ]);
         $response = $this->json('DELETE', $thread->path());
 
         $response->assertStatus(204);

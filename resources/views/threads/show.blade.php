@@ -14,11 +14,13 @@
 						<h5><a class="uk-text-muted" href="#">{{$thread->creator->name}}</a> |  {{$thread->created_at->diffForHumans()}}</h5>
 					</div>
 					<div>
-						<form class="uk-align-right" method="POST" action="{{$thread->path()}}">
-							{{csrf_field()}}
-							{{ method_field('DELETE')}}
-							<button class="uk-button uk-button-danger">Destroy</button>
-						</form>
+						@can('update', $thread)
+							<form class="uk-align-right" method="POST" action="{{$thread->path()}}">
+								{{csrf_field()}}
+								{{ method_field('DELETE')}}
+								<button class="uk-button uk-button-danger">Destroy</button>
+							</form>
+						@endcan
 					</div>
 				</div>
 				<p>{{$thread->body}}</p>

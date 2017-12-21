@@ -2,13 +2,13 @@
 
 <div class="uk-section">
 	<div class="uk-container">
-		@foreach($threads as $thread)
+		@forelse($threads as $thread)
 		<div class="uk-card uk-card-default uk-card-body uk-margin-small-top">
 			<div class="uk-child-width-expand" uk-grid>
 				<div class="uk-child-width-expand" uk-grid>
-					<div>
-						<h4>
-							<a href="{{$thread->path()}}">{{$thread->title}}
+					<div class="uk-width-5-6">
+						<h4 class="uk-heading-bullet uk-text-bold">
+							<a style="color: #4a4a4a" href="{{$thread->path()}}">{{$thread->title}}
 							</a>
 						</h4>
 					</div>
@@ -22,8 +22,11 @@
 				</div>
 			</div>
 			<p>{{$thread->body}}</p>
+			<h5 class="uk-margin-remove"><a class="uk-text-muted" href="{{ route('profile', $thread->creator )}}">{{$thread->creator->name}}</a> |  {{$thread->created_at->diffForHumans()}}</h5>
 		</div>
-		@endforeach
+		@empty
+		<p> There are no relevant results at this time.</p>
+		@endforelse
 	</div>
 </div>
 
