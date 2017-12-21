@@ -21,7 +21,7 @@ class ReplyController extends Controller
     {
         //
     }
-    
+
     /**
     * Show the form for creating a new resource.
     *
@@ -31,7 +31,7 @@ class ReplyController extends Controller
     {
         //
     }
-    
+
     /**
     * Store a newly created resource in storage.
     *
@@ -40,7 +40,7 @@ class ReplyController extends Controller
     */
     public function store($channelId, Thread $thread)
     {
-        $this->validate( request(), [
+        $this->validate(request(), [
             'body' => 'required'
         ]);
         $thread->addReply(
@@ -49,10 +49,10 @@ class ReplyController extends Controller
                 'body' => request('body')
                 ]
             );
-            
+
         return back();
     }
-        
+
     /**
     * Display the specified resource.
     *
@@ -63,7 +63,7 @@ class ReplyController extends Controller
     {
         //
     }
-        
+
     /**
     * Show the form for editing the specified resource.
     *
@@ -74,7 +74,7 @@ class ReplyController extends Controller
     {
         //
     }
-        
+
     /**
     * Update the specified resource in storage.
     *
@@ -86,7 +86,7 @@ class ReplyController extends Controller
     {
         //
     }
-        
+
     /**
     * Remove the specified resource from storage.
     *
