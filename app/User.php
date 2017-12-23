@@ -31,6 +31,11 @@ class User extends Authenticatable
         return $this->hasMany(Thread::class, 'user_id')->latest();
     }
 
+    public function activity()
+    {
+        return $this->hasMany(Activity::class);
+    }
+
     /**
      * The attributes that should be hidden for arrays.
      *
