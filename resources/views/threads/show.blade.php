@@ -18,7 +18,7 @@
 							<form class="uk-align-right" method="POST" action="{{$thread->path()}}">
 								{{csrf_field()}}
 								{{ method_field('DELETE')}}
-								<button class="uk-button uk-button-danger">Destroy</button>
+								<button class="uk-button uk-button-danger uk-button-small">X Destroy</button>
 							</form>
 						@endcan
 					</div>
