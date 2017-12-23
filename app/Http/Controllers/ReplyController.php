@@ -10,7 +10,7 @@ class ReplyController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth');
+        $this->middleware('auth')->except('index', 'show');
     }
     /**
     * Display a listing of the resource.
@@ -47,8 +47,8 @@ class ReplyController extends Controller
             [
                 'user_id' => auth()->id(),
                 'body' => request('body')
-                ]
-            );
+            ]
+        );
 
         return back()->with('flash', 'Your reply has been added to the thread!');
     }
@@ -95,6 +95,13 @@ class ReplyController extends Controller
     */
     public function destroy(Reply $reply)
     {
-        //
+        $this->authorize('update', $reply);
+
+        $reply->delete();
+
+        if (request()->wantsJson()) {
+            return response([], 204);
+        }
+        return back()->with('flash', 'Reply successfully deleted');
     }
 }

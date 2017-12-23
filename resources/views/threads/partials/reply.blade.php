@@ -1,4 +1,4 @@
-<div class="uk-card uk-card-default uk-card-body uk-margin-small-top">
+<div id="reply-{{$reply->id}}" class="uk-card uk-card-default uk-card-body uk-margin-small-top">
     <div class="uk-child-width-expand" uk-grid>
         <div>
             <h5>

@@ -13,6 +13,11 @@ class Reply extends Model
 
     protected $with = ['owner', 'favorites'];
 
+    public function path()
+    {
+        // link to the thread page and use # to scroll to the reply
+        return $this->thread->path() . '#reply-' . $this->id;
+    }
     public function owner()
     {
         return $this->belongsTo(User::class, 'user_id');
