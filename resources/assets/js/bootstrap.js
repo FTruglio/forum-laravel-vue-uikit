@@ -1,4 +1,4 @@
-
+window.Vue = require('vue');
 window._ = require('lodash');
 
 /**
@@ -9,8 +9,6 @@ window._ = require('lodash');
 
 try {
     window.$ = window.jQuery = require('jquery');
-
-    require('bootstrap-sass');
 } catch (e) {}
 
 /**
@@ -51,3 +49,11 @@ if (token) {
 //     broadcaster: 'pusher',
 //     key: 'your-pusher-key'
 // });
+
+// vue.$on to list to an event
+// vue.$emit to emit an event
+window.events = new Vue();
+
+window.flash = function (message) {
+    window.events.$emit('flash', message);
+};

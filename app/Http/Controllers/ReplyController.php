@@ -50,7 +50,7 @@ class ReplyController extends Controller
                 ]
             );
 
-        return back();
+        return back()->with('flash', 'Your reply has been added to the thread!');
     }
 
     /**
