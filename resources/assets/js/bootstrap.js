@@ -57,3 +57,13 @@ window.events = new Vue();
 window.flash = function (message) {
     window.events.$emit('flash', message);
 };
+
+window.Vue.prototype.authorize = function (handler) {
+    // Additional admin privaliges can be added here.
+    let user = window.App.user;
+
+    return user ? handler(user) : false;
+
+    // for testing
+    // return true;
+};
