@@ -18,6 +18,15 @@ class User extends Authenticatable
         'name', 'email', 'password',
     ];
 
+    /**
+     * The attributes that should be hidden for arrays.
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'password', 'remember_token', 'email'
+    ];
+
     public function path()
     {
         return '/profiles/' . $this->name;
@@ -35,13 +44,4 @@ class User extends Authenticatable
     {
         return $this->hasMany(Activity::class);
     }
-
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
-     */
-    protected $hidden = [
-        'password', 'remember_token',
-    ];
 }

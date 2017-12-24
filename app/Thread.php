@@ -41,9 +41,15 @@ class Thread extends Model
         return $this->belongsTo('App\User', 'user_id');
     }
 
+    /**
+     * Add a reply to a thread
+     *
+     * @param array $reply
+     * @return reply
+     */
     public function addReply($reply)
     {
-        $this->replies()->create($reply);
+        return $this->replies()->create($reply);
     }
 
     public function channel()

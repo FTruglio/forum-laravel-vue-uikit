@@ -30,26 +30,10 @@
 
 			<div class="uk-container uk-padding-small">
 
-				<replies :data="{{ $thread->replies }}" @removed="repliesCount--"></replies>
+				<replies :data="{{ $thread->replies }}"
+					@removed="repliesCount--"
+					@added="repliesCount++"></replies>
 				{{-- {{$replies->links()}} --}}
-
-
-				@if(auth()->check())
-				<form  method="POST" action="{{$thread->path() . '/replies'}}">
-					{{csrf_field()}}
-					<div class="uk-card uk-card-default uk-margin-small-top">
-						<div class="uk-card-header">
-							<h4 class="uk-card-title">Contribute</h4>
-						</div>
-						<div class="uk-card-body">
-							<textarea class="uk-textarea" rows="5" name="body" placeholder="Write something intelligent..."></textarea>
-						</div>
-						<div class="uk-card-footer"><button class="uk-button uk-button-primary uk-align-right">Submit</button></div>
-					</div>
-				</form>
-				@else
-				<p>Please <a href="{{route ('login')}}"> sign in </a> to participate in this discussion.</p>
-				@endif
 			</div>
 		</div>
 		<div class="uk-section uk-width-1-2@s uk-width-1-3@m">
