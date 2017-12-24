@@ -11,10 +11,7 @@
             </div>
             <div>
                 <div class="uk-align-right">
-                    <form  method="POST" action="/replies/{{$reply->id}}/favorites">
-                        {{csrf_field()}}
-                        <button class="uk-button uk-button-primary uk-button-small" {{ $reply->isFavorited() ? 'disabled' : '' }}>{{$reply->favorites_count}} {{ str_plural('Favorite', $reply->favorites_count)}}</button>
-                    </form>
+                    <favorite :reply="{{ $reply }}"></favorite>
                 </div>
             </div>
         </div>

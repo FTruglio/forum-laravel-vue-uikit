@@ -13,6 +13,8 @@ class Reply extends Model
 
     protected $with = ['owner', 'favorites'];
 
+    protected $appends = [ 'favoritesCount', 'isFavorited' ];
+
     public function path()
     {
         // link to the thread page and use # to scroll to the reply

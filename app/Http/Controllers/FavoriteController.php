@@ -19,4 +19,16 @@ class FavoriteController extends Controller
 
         return back();
     }
+
+    public function destroy(Reply $reply)
+    {
+        $this->authorize('update', $reply);
+
+        $reply->unfavorite();
+
+        if (request()->wantsJson()) {
+            return response([], 204);
+        }
+        return back()->with('flash', 'Reply successfully deleted');
+    }
 }
