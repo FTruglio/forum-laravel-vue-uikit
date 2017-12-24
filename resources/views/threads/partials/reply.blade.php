@@ -11,7 +11,9 @@
             </div>
             <div>
                 <div class="uk-align-right">
+                    @auth
                     <favorite :reply="{{ $reply }}"></favorite>
+                    @endauth
                 </div>
             </div>
         </div>

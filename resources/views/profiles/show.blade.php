@@ -6,14 +6,16 @@
         <div class="uk-heading-divider uk-flex">
             <h1 class="uk-margin-medium-right">{{$profileUser->name}}</h1>
         </div>
-        @foreach($activities as $date => $activity)
+        @forelse($activities as $date => $activity)
         <h3>{{$date}}</h3>
-        @foreach($activity as $record)
-        @if(view()->exists('profiles.activities.' . $record->type))
-        @include('profiles.activities.' . $record->type, ['activity' => $record])
-        @endif
-        @endforeach
-        @endforeach
+            @foreach($activity as $record)
+            @if(view()->exists('profiles.activities.' . $record->type))
+            @include('profiles.activities.' . $record->type, ['activity' => $record])
+            @endif
+            @endforeach
+        @empty
+        <p>There is no activity for this user yet.</p>
+        @endforelse
     </div>
 </div>
 @endsection
