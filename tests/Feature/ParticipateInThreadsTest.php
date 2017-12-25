@@ -34,6 +34,7 @@ class ParticipateInThreads extends TestCase
         $this->post($thread->path() . '/replies', $reply->toArray());
 
         $this->assertDatabaseHas('replies', ['body' => $reply->body]);
+        $this->assertEquals(1, $thread->fresh()->replies_count);
     }
 
     /**
@@ -81,6 +82,7 @@ class ParticipateInThreads extends TestCase
         $this->json('DELETE', '/replies/' . $reply->id);
 
         $this->assertDatabaseMissing('replies', ['id' => $reply->id]);
+        $this->assertEquals(0, $reply->thread->fresh()->replies_count);
     }
 
     /**

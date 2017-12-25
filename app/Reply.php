@@ -15,6 +15,19 @@ class Reply extends Model
 
     protected $appends = [ 'favoritesCount', 'isFavorited' ];
 
+    protected static function boot()
+    {
+        parent::boot();
+        // Model events to increment a count
+        static::created(function ($reply) {
+            $reply->thread->increment('replies_count');
+        });
+        // Model events to decrement a count
+        static::deleted(function ($reply) {
+            $reply->thread->decrement('replies_count');
+        });
+    }
+
     public function path()
     {
         // link to the thread page and use # to scroll to the reply
