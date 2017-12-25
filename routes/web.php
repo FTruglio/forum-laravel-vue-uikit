@@ -32,3 +32,6 @@ Route::patch('replies/{reply}', 'ReplyController@update');
 Route::delete('replies/{reply}', 'ReplyController@destroy');
 
 Route::get('/profiles/{user}', 'ProfileController@show')->name('profile');
+
+// API Routes
+Route::get('/threads/{channel}/{thread}/replies', 'ReplyController@index');

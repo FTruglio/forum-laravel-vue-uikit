@@ -20,7 +20,7 @@ class ReadThreadsTest extends TestCase
         $response = $this->get('/threads')
         ->assertSee($this->thread->title);
     }
-    
+
     /**
     * @test
     * @return void
@@ -30,19 +30,7 @@ class ReadThreadsTest extends TestCase
         $response = $this->get($this->thread->path())
         ->assertSee($this->thread->title);
     }
-    
-    /**
-    * @test
-    * @return void
-    */
-    public function a_user_can_read_replies_that_are_associated_With_a_thread()
-    {
-        $reply = create('App\Reply', ['thread_id' => $this->thread->id]);
-        
-        $response = $this->get($this->thread->path())
-        ->assertSee($reply->body);
-    }
-    
+
     /**
     *
     * @test
@@ -51,15 +39,15 @@ class ReadThreadsTest extends TestCase
     public function a_user_can_filter_threads_according_to_a_channel()
     {
         $channel = create('App\Channel');
-        
+
         $threadInChannel = create('App\Thread', ['channel_id' => $channel->id]);
         $threadNotInChannel = create('App\Thread');
-        
+
         $this->get('/threads/' . $channel->slug)
         ->assertSee($threadInChannel->title)
         ->assertDontSee($threadNotInChannel->title);
     }
-    
+
     /**
     * filtering threads by username
     * @test
@@ -68,10 +56,10 @@ class ReadThreadsTest extends TestCase
     public function a_user_can_filter_threads_by_any_username()
     {
         $this->signIn(create('App\User', ['name' => 'johnDoe']));
-        
+
         $threadByJohn = create('App\Thread', ['user_id' => auth()->id()]);
         $threadNotByJohn = create('App\Thread');
-        
+
         $this->get('/threads?by=johnDoe')
         ->assertSee($threadByJohn->title)
         ->assertDontSee($threadNotByJohn->title);
@@ -98,5 +86,21 @@ class ReadThreadsTest extends TestCase
         $response = $this->getJson('threads?popular=1')->json();
         // then they should be returned in descending order from most to least
         $this->assertEquals([3,2,0], array_column($response, 'replies_count'));
+    }
+
+    /**
+     * A basic test example.
+     * @test
+     * @return void
+     */
+    public function a_user_can_request_all_replies_for_a_given_thread()
+    {
+        $thread = create('App\Thread');
+        create('App\Reply', ['thread_id' => $thread->id], 25);
+
+        $response = $this->getJson($thread->path() . '/replies')->json();
+
+        $this->assertCount(20, $response['data']);
+        $this->assertEquals(25, $response['total']);
     }
 }

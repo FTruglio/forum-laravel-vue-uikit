@@ -1,10 +1,12 @@
 <template>
     <div>
         <div v-for="(reply, index) in items">
-            <reply :data="reply" @deleted="remove(index)"></reply>
+            <reply :data="reply" @deleted="remove(index)" :key="reply.id"></reply>
         </div>
 
-        <new-reply :endpoint="endpoint" @created="add"></new-reply>
+        <paginator :dataSet="dataSet" @changed="fetchData"></paginator>
+
+        <new-reply @created="add"></new-reply>
     </div>
 
 </template>
@@ -12,33 +14,49 @@
 <script>
 import Reply from './Reply.vue';
 import NewReply from './NewReply.vue';
+import collection from '../mixins/collection';
 
 export default {
     props: ['data'],
 
     components: { Reply, NewReply },
 
+    mixins: [ collection ],
+
     data() {
         return {
-            items: this.data,
+            dataSet: false,
             endpoint: location.pathname + '/replies'
         }
     },
 
-    methods: {
-        add(reply) {
-            this.items.push(reply);
+    created() {
+        this.fetchData();
+    },
 
-            this.$emit('added');
+    methods: {
+
+        fetchData(page) {
+            axios.get(this.url(page)).then(this.refresh);
         },
 
-        remove(index) {
-            this.items.splice(index, 1);
+        url(page) {
+            if (! page) {
+                let query = location.search.match(/page=(\d+)/);
+                // if there is a query get the first item otherwise default to 1.
+                page = query ? query[1] : 1;
+            }
 
-            this.$emit('removed');
+            return location.pathname + '/replies?page=' + page;
+        },
 
-            flash('Reply was deleted');
-        }
+        refresh({data}) {
+            this.dataSet = data;
+            this.items = data.data;
+
+            //returns the user to the the top of the page after reoloading the data.
+            window.scrollTo(0,0);
+        },
     }
 };
 </script>

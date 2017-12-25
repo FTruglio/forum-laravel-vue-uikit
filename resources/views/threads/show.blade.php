@@ -30,10 +30,7 @@
 
 			<div class="uk-container uk-padding-small">
 
-				<replies :data="{{ $thread->replies }}"
-					@removed="repliesCount--"
-					@added="repliesCount++"></replies>
-				{{-- {{$replies->links()}} --}}
+				<replies @removed="repliesCount--" @added="repliesCount++"></replies>
 			</div>
 		</div>
 		<div class="uk-section uk-width-1-2@s uk-width-1-3@m">
