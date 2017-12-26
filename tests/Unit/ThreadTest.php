@@ -147,4 +147,25 @@ class ThreadTest extends TestCase
         // Confirm the notification was sent
         Notification::assertSentTo($userA, ThreadWasUpdated::class);
     }
+
+    /**
+     * A basic test example.
+     * @test
+     * @return void
+     */
+    public function a_thread_can_check_if_the_authenticated_user_has_read_all_replies()
+    {
+        $this->signIn();
+        $userA = auth()->user();
+        $userB = create('App\User');
+
+        // Given a user is subscribed to a thread
+        $thread = $this->thread;
+
+        $this->assertTrue($thread->hasUpdatesFor($userA));
+
+        $userA->readThread($thread);
+
+        $this->assertFalse($thread->hasUpdatesFor(auth()->user()));
+    }
 }

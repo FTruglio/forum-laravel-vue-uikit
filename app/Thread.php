@@ -99,4 +99,13 @@ class Thread extends Model
         ->where('user_id', auth()->id())
         ->exists();
     }
+
+    public function hasUpdatesFor($user = null)
+    {
+        $user = $user ?: auth()->user();
+        // look in cache for the proper key
+        // compare that the carbon instance of the user reading the thread with the $thread->updated_at.
+        $key = $user->visitedThreadCacheKey($this);
+        return $this->updated_at > cache($key);
+    }
 }

@@ -71,6 +71,12 @@ class ThreadController extends Controller
     */
     public function show($channel, Thread $thread)
     {
+        // Record that the user visited this page
+        // Redord a timestamp of when they visited.
+        if (auth()->check()) {
+            auth()->user()->readThread($thread);
+        }
+
         return view('threads.show', compact('thread'));
     }
 
