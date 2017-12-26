@@ -40,6 +40,9 @@
 						<span v-text="repliesCount"></span>
 						{{str_plural('comment', $thread->replies_count)}}.</p>
 					</div>
+					<div class="uk-card uk-card-default uk-card-body">
+						<subscribe-button :is-active="{{ json_encode($thread->isSubscribedTo) }}"></subscribe-button>
+					</div>
 				</div>
 			</div>
 		</div>
