@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Spam;
 use App\Reply;
-use Illuminate\Http\Request;
 use App\Thread;
+use Illuminate\Http\Request;
 
 class ReplyController extends Controller
 {
@@ -33,16 +34,19 @@ class ReplyController extends Controller
     }
 
     /**
-    * Store a newly created resource in storage.
-    *
-    * @param  \Illuminate\Http\Request  $request
-    * @return \Illuminate\Http\Response
-    */
-    public function store($channelId, Thread $thread)
+     * @param  string $channelId
+     * @param  Thread
+     * @param  Spam
+     * @return [type]
+     */
+    public function store($channelId, Thread $thread, Spam $spam)
     {
         $this->validate(request(), [
             'body' => 'required'
         ]);
+
+        $spam->detect(request('body'));
+
         $reply = $thread->addReply(
             [
                 'user_id' => auth()->id(),

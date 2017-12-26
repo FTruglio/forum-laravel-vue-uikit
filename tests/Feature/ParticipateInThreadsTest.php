@@ -26,7 +26,7 @@ class ParticipateInThreads extends TestCase
     */
     public function an_authenticated_user_can_participate_in_forum_threads()
     {
-        $this->be($user = create('App\User'));
+        $this->signIn();
 
         $thread = create('App\Thread');
         $reply = make('App\Reply');
@@ -118,5 +118,24 @@ class ParticipateInThreads extends TestCase
 
         $this->patch('/replies/' . $reply->id)
         ->assertRedirect('/login');
+    }
+
+    /**
+     * detecting spam in thread replies
+     * @test
+     * @return void
+     */
+    public function replies_that_contain_spam_may_not_be_created()
+    {
+        $this->signIn();
+
+        $thread = create('App\Thread');
+        $reply = make('App\Reply', [
+                'body' => 'yahoo customer support'
+            ]);
+
+        $this->expectException(\Exception::class);
+
+        $this->post($thread->path() . '/replies', $reply->toArray());
     }
 }

@@ -8,8 +8,7 @@
 				<div class="uk-child-width-expand" uk-grid>
 					<div class="uk-width-5-6">
 						<h4 class="uk-heading-bullet uk-text-bold">
-							@auth
-							@if($thread->hasUpdatesFor(auth()->user()))
+							@if(auth()->check() && $thread->hasUpdatesFor(auth()->user()))
 							<a class="uk-text-bold" style="color: #00bfa5" href="{{$thread->path()}}">
 								{{$thread->title}}
 							</a>
@@ -18,11 +17,6 @@
 								{{$thread->title}}
 							</a>
 							@endif
-							@else
-								<a style="color: #4a4a4a" href="{{$thread->path()}}">
-								{{$thread->title}}
-							</a>
-							@endauth
 						</h4>
 					</div>
 					<div>
