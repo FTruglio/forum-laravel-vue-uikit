@@ -3,6 +3,8 @@
 namespace Tests\Unit;
 
 use Tests\TestCase;
+use App\Notifications\ThreadWasUpdated;
+use Illuminate\Support\Facades\Notification;
 
 class ThreadTest extends TestCase
 {
@@ -118,5 +120,31 @@ class ThreadTest extends TestCase
 
         // Check that it is true
         $this->assertTrue($thread->isSubscribedTo);
+    }
+
+    /**
+     * A basic test example.
+     * @test
+     * @return void
+     */
+    public function a_thread_notifies_all_registered_subscribers_when_a_reply_is_added()
+    {
+        // Fake the notification
+        Notification::fake();
+
+        $this->signIn();
+        $userA = auth()->user();
+        $userB = create('App\User');
+
+        // Given a user is subscribed to a thread
+        $this->thread->subscribe();
+
+        // Reply to the thread
+        $this->thread->addReply([
+            'body' => 'FooBar',
+            'user_id' => $userB->id
+        ]);
+        // Confirm the notification was sent
+        Notification::assertSentTo($userA, ThreadWasUpdated::class);
     }
 }
