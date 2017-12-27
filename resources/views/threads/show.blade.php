@@ -12,7 +12,7 @@
 							<h1 class="uk-text-bold">
 								{{$thread->title}}
 							</h1>
-							<h5><a class="uk-text-muted" href="#">{{$thread->creator->name}}</a> |  {{$thread->created_at->diffForHumans()}}</h5>
+							<h5><a class="uk-text-muted" href="{{$thread->path()}}">{{$thread->creator->name}}</a> |  {{$thread->created_at->diffForHumans()}}</h5>
 						</div>
 						<div>
 							@can('update', $thread)

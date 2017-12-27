@@ -34,4 +34,33 @@ class ReplyTest extends TestCase
 
         $this->assertFalse($reply->wasJustPublished());
     }
+
+    /**
+     * @test
+     */
+    public function a_reply_knows_which_users_where_mentioned()
+    {
+        // Given I have a user whi is signed in User A
+        $this->signIn();
+        $userA = create('App\User', ['name' => 'userA']);
+        // and another user UserB
+        $userB = create('App\User', ['name' => 'userB']);
+
+        //if we have a thread
+        $thread = create('App\Thread');
+
+        // User A replies and mentions @userB
+        $reply = make(
+            'App\Reply',
+            [
+                'user_id' => $userA->id,
+                'body' => '@userB look at this'
+            ]
+        );
+        // The reply is posted
+        $response = $this->json('POST', $thread->path() . '/replies', $reply->toArray());
+        $response->assertStatus(200);
+
+        $this->assertEquals(['userB'], $reply->mentionedUsers($reply));
+    }
 }
