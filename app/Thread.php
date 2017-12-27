@@ -50,7 +50,6 @@ class Thread extends Model
         $reply = $this->replies()->create($reply);
 
         // Prepare a notification for the user every time a new reply is created for the thread.
-
         $this->notifySubscribers($reply);
 
         return $reply;
