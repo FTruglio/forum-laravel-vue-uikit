@@ -2,10 +2,12 @@
 
 namespace App\Http\Requests;
 
+use App\User;
 use App\Reply;
 use App\Rules\SpamFree;
 use Illuminate\Support\Facades\Gate;
 use App\Exceptions\ThrottleException;
+use App\Notifications\YouWereMentioned;
 use Illuminate\Foundation\Http\FormRequest;
 
 class CreatePostForm extends FormRequest
@@ -42,11 +44,29 @@ class CreatePostForm extends FormRequest
 
     public function persist($thread)
     {
-        return $thread->addReply(
+        $reply = $thread->addReply(
             [
                 'user_id' => auth()->id(),
                 'body' => request('body')
             ]
-        )->with('owner');
+        );
+
+        // Inspect the body of the reply for username mentions
+        // preg_match = will only return the first match
+        // preg_match_all = will return all matches
+        // Create a reg exp https://regexr.com/
+        preg_match_all('/\@([^\s\.]+)/', $reply->body, $matches);
+
+        $names = $matches[1];
+        // And then for each mentioned user, notify them
+
+        foreach ($names as $name) {
+            $user = User::whereName($name)->first();
+            if ($user) {
+                $user->notify(new YouWereMentioned($reply));
+            }
+        }
+
+        return $reply->load('owner');
     }
 }
