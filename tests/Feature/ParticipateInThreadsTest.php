@@ -44,7 +44,9 @@ class ParticipateInThreads extends TestCase
     */
     public function a_reply_requires_a_body()
     {
-        $this->withExceptionHandling()->signIn();
+        $this->withExceptionHandling();
+
+        $this->signIn();
 
         $thread = create('App\Thread');
         $reply = make('App\Reply', ['body' => null]);
@@ -127,6 +129,7 @@ class ParticipateInThreads extends TestCase
      */
     public function replies_that_contain_spam_may_not_be_created()
     {
+        $this->withExceptionHandling();
         $this->signIn();
 
         $thread = create('App\Thread');
@@ -144,6 +147,7 @@ class ParticipateInThreads extends TestCase
      */
     public function a_user_can_reply_maximum_once_per_minute()
     {
+        $this->withExceptionHandling();
         $this->signIn();
 
         $thread = create('App\Thread');
@@ -155,6 +159,6 @@ class ParticipateInThreads extends TestCase
         ->assertStatus(200);
 
         $this->post($thread->path() . '/replies', $reply->toArray())
-        ->assertStatus(422);
+        ->assertStatus(429);
     }
 }

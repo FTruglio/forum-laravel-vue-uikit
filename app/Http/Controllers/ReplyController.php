@@ -7,6 +7,7 @@ use App\Thread;
 use App\Rules\SpamFree;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use App\Http\Requests\CreatePostForm;
 
 class ReplyController extends Controller
 {
@@ -37,37 +38,25 @@ class ReplyController extends Controller
     /**
      * @param  string $channelId
      * @param  Thread
-     * @param  Spam
-     * @return [type]
+     * @param  CreatePostForm // laravel will automatically pick up on requests that are typehinted and submit the form through the form request.
+     * @return json $reply
      */
-    public function store($channelId, Thread $thread)
+    public function store($channelId, Thread $thread, CreatePostForm $form)
     {
-        try {
-            // If you want to catch the policy error and return a custom error message us the Gate facade.
-            if (Gate::denies('create', new Reply)) {
-                return response(
-                    'You are posting to frequently. Please take a break',
-                    422
-                );
-            }
-            // If you do not need to catch the customer error message you can validate the policy short hand.
-            // $this->authorize('create', new Reply);
+        // If you want to catch the policy error and return a custom error message us the Gate facade.
 
-            $this->validate(request(), ['body' => ['required', new SpamFree]]);
+        // if (Gate::denies('create', new Reply)) {
+        //     return response(
+        //         'You are posting to frequently. Please take a break',
+        //         429
+        //     );
+        // }
 
-            $reply = $thread->addReply(
-                [
-                    'user_id' => auth()->id(),
-                    'body' => request('body')
-                ]
-            );
-        } catch (\Exception $e) {
-            return response(
-                'Sorry, your reply could not be saved at this time.',
-                422
-            );
-        }
-        return $reply->load('owner');
+        // If you do not need to catch the customer error message you can validate the policy short hand.
+        // $this->authorize('create', new Reply);
+
+        // $this->validate(request(), ['body' => ['required', new SpamFree]]);
+        $form->persist($thread);
     }
 
     /**
