@@ -131,9 +131,30 @@ class ParticipateInThreads extends TestCase
 
         $thread = create('App\Thread');
         $reply = make('App\Reply', [
-                'body' => 'yahoo customer support'
-            ]);
+            'body' => 'yahoo customer support'
+        ]);
 
         $this->post($thread->path() . '/replies', $reply->toArray())->assertStatus(422);
+    }
+
+    /**
+     * A basic test example.
+     * @test
+     * @return void
+     */
+    public function a_user_can_reply_maximum_once_per_minute()
+    {
+        $this->signIn();
+
+        $thread = create('App\Thread');
+        $reply = make('App\Reply', [
+            'body' => 'My simple reply'
+        ]);
+
+        $this->post($thread->path() . '/replies', $reply->toArray())
+        ->assertStatus(200);
+
+        $this->post($thread->path() . '/replies', $reply->toArray())
+        ->assertStatus(422);
     }
 }

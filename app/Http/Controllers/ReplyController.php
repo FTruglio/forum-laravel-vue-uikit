@@ -6,6 +6,7 @@ use App\Reply;
 use App\Thread;
 use App\Rules\SpamFree;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class ReplyController extends Controller
 {
@@ -42,6 +43,16 @@ class ReplyController extends Controller
     public function store($channelId, Thread $thread)
     {
         try {
+            // If you want to catch the policy error and return a custom error message us the Gate facade.
+            if (Gate::denies('create', new Reply)) {
+                return response(
+                    'You are posting to frequently. Please take a break',
+                    422
+                );
+            }
+            // If you do not need to catch the customer error message you can validate the policy short hand.
+            // $this->authorize('create', new Reply);
+
             $this->validate(request(), ['body' => ['required', new SpamFree]]);
 
             $reply = $thread->addReply(
@@ -56,12 +67,7 @@ class ReplyController extends Controller
                 422
             );
         }
-        // For ajax requests that expect json
-        if (request()->expectsJson()) {
-            return $reply->load('owner');
-        }
-
-        return back()->with('flash', 'Your reply has been added to the thread!');
+        return $reply->load('owner');
     }
 
     /**

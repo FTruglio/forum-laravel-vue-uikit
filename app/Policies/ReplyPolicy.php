@@ -30,7 +30,14 @@ class ReplyPolicy
      */
     public function create(User $user)
     {
-        //
+        // This is being eager loaded and it is not refreshing the data. So we need to get a fresh() instance of the user then fetch the last reply.
+        $lastReply = $user->fresh()->lastReply;
+        if (! $lastReply) {
+            // if there is no reply
+            return true;
+        }
+
+        return ! $lastReply->wasJustPublished();
     }
 
     /**
