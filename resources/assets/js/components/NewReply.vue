@@ -1,5 +1,4 @@
 <template>
-
     <div>
         <div v-if="signedIn">
             <div class="uk-card uk-card-default uk-margin-small-top">
@@ -46,9 +45,12 @@ export default {
             .then(({data}) => {
                 this.body = '';
 
-                flash('Your reply has been posted.');
+                flash('Your reply has been posted.', 'success');
 
                 this.$emit('created', data);
+            }).catch(error => {
+                console.log(error.response);
+                flash(error.response.data, 'danger');
             });
         }
     }

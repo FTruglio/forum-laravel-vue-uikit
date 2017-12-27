@@ -41,19 +41,22 @@ class ReplyController extends Controller
      */
     public function store($channelId, Thread $thread, Spam $spam)
     {
-        $this->validate(request(), [
-            'body' => 'required'
-        ]);
+        try {
+            $this->validateReply();
 
-        $spam->detect(request('body'));
-
-        $reply = $thread->addReply(
-            [
-                'user_id' => auth()->id(),
-                'body' => request('body')
-            ]
-        );
-
+            $reply = $thread->addReply(
+                [
+                    'user_id' => auth()->id(),
+                    'body' => request('body')
+                ]
+            );
+        } catch (\Exception $e) {
+            return response(
+                'Sorry, your reply could not be saved at this time.',
+                422
+            );
+        }
+        // For ajax requests that expect json
         if (request()->expectsJson()) {
             return $reply->load('owner');
         }
@@ -86,14 +89,23 @@ class ReplyController extends Controller
     /**
     * Update the specified resource in storage.
     *
-    * @param  \Illuminate\Http\Request  $request
     * @param  \App\Reply  $reply
     * @return \Illuminate\Http\Response
     */
-    public function update(Request $request, Reply $reply)
+    public function update(Reply $reply, Spam $spam)
     {
         $this->authorize('update', $reply);
-        $reply->update(['body' => request('body')]);
+
+        try {
+            $this->validateReply();
+
+            $reply->update(['body' => request('body')]);
+        } catch (\Exception $e) {
+            return response(
+                'Sorry, your reply could not be saved at this time.',
+                422
+            );
+        }
     }
 
     /**
@@ -112,5 +124,11 @@ class ReplyController extends Controller
             return response([], 204);
         }
         return back()->with('flash', 'Reply successfully deleted');
+    }
+
+    public function validateReply()
+    {
+        $this->validate(request(), ['body' => 'required']);
+        resolve(Spam::class)->detect(request('body'));
     }
 }

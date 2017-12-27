@@ -1,8 +1,11 @@
 <template>
-    <div class="alert-flash" uk-alert v-show="show" >
-        <h3>Notice</h3>
-        <p>{{body}}</p>
-    </div>
+    <div
+    class="alert-flash"
+    :class="'uk-alert uk-alert-'+ level"
+    uk-alert
+    v-show="show"
+    v-text="body"
+    ></div>
 </template>
 
 <script>
@@ -13,6 +16,7 @@ export default {
     data() {
         return {
             body: this.message,
+            level: 'success',
             show: false
         }
     },
@@ -20,14 +24,14 @@ export default {
         if (this.message) {
             this.flash(this.message);
         }
-        // Listening to event emmited in bootstrap.js
-        window.events.$on('flash', message => this.flash(message));
+        // Listening to event emmited from bootstrap.js
+        window.events.$on('flash', data => this.flash(data));
     },
 
     methods: {
-
-        flash(message) {
-            this.body = message;
+        flash(data) {
+            this.body = data.message;
+            this.level = data.level;
             this.show = true;
 
             this.hide();

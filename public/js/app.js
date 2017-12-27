@@ -11983,7 +11983,9 @@ if (token) {
 window.events = new Vue();
 
 window.flash = function (message) {
-    window.events.$emit('flash', message);
+    var level = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'success';
+
+    window.events.$emit('flash', { message: message, level: level });
 };
 
 window.Vue.prototype.authorize = function (handler) {
@@ -40958,6 +40960,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
 
@@ -40966,6 +40971,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     data: function data() {
         return {
             body: this.message,
+            level: 'success',
             show: false
         };
     },
@@ -40975,16 +40981,17 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         if (this.message) {
             this.flash(this.message);
         }
-        // Listening to event emmited in bootstrap.js
-        window.events.$on('flash', function (message) {
-            return _this.flash(message);
+        // Listening to event emmited from bootstrap.js
+        window.events.$on('flash', function (data) {
+            return _this.flash(data);
         });
     },
 
 
     methods: {
-        flash: function flash(message) {
-            this.body = message;
+        flash: function flash(data) {
+            this.body = data.message;
+            this.level = data.level;
             this.show = true;
 
             this.hide();
@@ -41007,21 +41014,15 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c(
-    "div",
-    {
-      directives: [
-        { name: "show", rawName: "v-show", value: _vm.show, expression: "show" }
-      ],
-      staticClass: "alert-flash",
-      attrs: { "uk-alert": "" }
-    },
-    [
-      _c("h3", [_vm._v("Notice")]),
-      _vm._v(" "),
-      _c("p", [_vm._v(_vm._s(_vm.body))])
-    ]
-  )
+  return _c("div", {
+    directives: [
+      { name: "show", rawName: "v-show", value: _vm.show, expression: "show" }
+    ],
+    staticClass: "alert-flash",
+    class: "uk-alert uk-alert-" + _vm.level,
+    attrs: { "uk-alert": "" },
+    domProps: { textContent: _vm._s(_vm.body) }
+  })
 }
 var staticRenderFns = []
 render._withStripped = true
@@ -41357,10 +41358,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         update: function update() {
             axios.patch('/replies/' + this.data.id, {
                 body: this.body
+            }).catch(function (error) {
+                flash(error.response.data, 'danger');
             });
 
             this.editing = false;
-            flash('Reply updated!');
+            flash('Reply updated!', 'success');
         },
         destroy: function destroy() {
             axios.delete('/replies/' + this.data.id);
@@ -41722,7 +41725,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
-//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     data: function data() {
@@ -41749,9 +41751,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
                 _this.body = '';
 
-                flash('Your reply has been posted.');
+                flash('Your reply has been posted.', 'success');
 
                 _this.$emit('created', data);
+            }).catch(function (error) {
+                console.log(error.response);
+                flash(error.response.data, 'danger');
             });
         }
     }
