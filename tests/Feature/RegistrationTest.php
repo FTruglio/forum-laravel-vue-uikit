@@ -40,8 +40,8 @@ class RegistrationTest extends TestCase
 
         $user = User::whereName('John Doe')->first();
 
-        $this->assertFalse($user->confirmed);
-        $this->assertNotNull($user->confirmation_token);
+        $this->assertFalse($user->fresh()->confirmed);
+        $this->assertNotNull($user->fresh()->confirmation_token);
 
         // Let the user confirm their account.
         $response = $this->get('/confirmation?token=' . $user->confirmation_token);
