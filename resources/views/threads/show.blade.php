@@ -17,7 +17,7 @@
 							<h1 class="uk-text-bold">
 								{{$thread->title}}
 							</h1>
-							<img src="{{ $thread->creator->avatar() }}" alt={{$thread->creator->name}} style="width: 100px; height: 100%; max-height: 100px;">
+							<img src="{{ $thread->creator->avatar_path }}" alt={{$thread->creator->name}} style="width: 100px; height: 100%; max-height: 100px;">
 							<h5><a class="uk-text-muted" href="{{$thread->path()}}">{{$thread->creator->name}}</a> |  {{$thread->created_at->diffForHumans()}}</h5>
 						</div>
 						<div>

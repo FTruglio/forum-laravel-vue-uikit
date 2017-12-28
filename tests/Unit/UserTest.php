@@ -31,10 +31,10 @@ class UserTest extends TestCase
         $user = create('App\User');
 
         // No avatar has been uploaded by the user. It should default to a placeholder avatar.
-        $this->assertEquals(asset('avatars/default.jpg'), $user->avatar());
+        $this->assertEquals(asset('images/default.jpg'), $user->avatar_path);
 
         $user->avatar_path = 'avatars/me.jpg';
 
-        $this->assertEquals(asset('avatars/me.jpg'), $user->avatar());
+        $this->assertEquals(asset('avatars/me.jpg'), $user->avatar_path);
     }
 }
