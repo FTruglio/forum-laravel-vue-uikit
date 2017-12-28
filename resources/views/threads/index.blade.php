@@ -8,11 +8,12 @@
               {{$threads->render()}}
           </div>
           <div class="uk-width-expand">
+            @if(count($trending))
             <div class="uk-card uk-card-default">
                 <div class="uk-card-header">
-                 <h3 class="uk-text-bold">Trending Threads</h3>
-             </div>
-             <div class="uk-card-body">
+                   <h3 class="uk-text-bold">Trending Threads</h3>
+               </div>
+               <div class="uk-card-body">
                 <ul class="uk-list uk-list-divider">
                     @foreach($trending as $thread)
                     <li><a href="{{$thread->path}}">{{$thread->title}}</a></li>
@@ -20,6 +21,7 @@
                 </ul>
             </div>
         </div>
+        @endif
     </div>
 </div>
 </div>
