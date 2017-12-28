@@ -4,18 +4,21 @@
         <div class="uk-child-width-expand" uk-grid>
             <div class="uk-child-width-expand" uk-grid>
                 <div class="uk-width-5-6">
-                    <h4 class="uk-text-bold uk-margin-remove-bottom" style="letter-spacing: 1px;">
+                    <h4 class="uk-text-bold uk-margin-remove-bottom">
                         @if(auth()->check() && $thread->hasUpdatesFor(auth()->user()))
-                        <a class="uk-text-bold" style="color: #00bfa5" href="{{$thread->path()}}">
+                        <a style="color: #00bfa5; letter-spacing: 1px;" href="{{$thread->path()}}">
                             {{$thread->title}}
                         </a>
                         @else
-                        <a style="color: #4a4a4a" href="{{$thread->path()}}">
+                        <a style="color: #4a4a4a; letter-spacing: 1px;" href="{{$thread->path()}}">
                             {{$thread->title}}
                         </a>
                         @endif
                     </h4>
-                    <h5 class="uk-margin-small-top uk-text-muted">Posted By: <a href="{{ route('profile', $thread->creator) }}">{{$thread->creator->name}} | {{$thread->created_at->diffForHumans()}}</a></h5>
+                    <h5 class="uk-margin-small-top uk-text-muted">Author:
+                        <img src="{{ $thread->creator->avatar_path }}" alt={{$thread->creator->name}} style="width: 25px; height: 100%; max-height: 25px;">
+                        <a href="{{ route('profile', $thread->creator) }}">{{$thread->creator->name}} | {{$thread->created_at->diffForHumans()}}</a>
+                    </h5>
                 </div>
                 <div>
                     <span class="uk-text-bold uk-align-right uk-margin-small-right">

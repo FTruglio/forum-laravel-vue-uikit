@@ -3,7 +3,7 @@
 @section('content')
 
 <div class="uk-section">
-	<div class="uk-container uk-container-large">
+    <div class="uk-container uk-container-large">
         <div uk-grid>
             <div class="uk-width-2-3">
               @include('threads._list')

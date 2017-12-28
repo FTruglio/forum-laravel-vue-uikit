@@ -1,9 +1,9 @@
-@extends('layouts.app') 
+@extends('layouts.app')
 
 @section('content')
 
 <div class="uk-section">
-	<div class="uk-container">
+	<div class="uk-container uk-container-small">
 		<form  method="POST" action="/threads">
 		{{csrf_field()}}
 			<div class="uk-card uk-card-default uk-margin-small-top">

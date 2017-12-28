@@ -47,10 +47,9 @@ class CreateThreadsTest extends TestCase
     {
         $this->signIn();
 
-        $thread = make('App\Thread');
+        $thread = make('App\Thread', ['user_id' => auth()->id()]);
 
         $response = $this->post('/threads', $thread->toArray());
-
 
         $this->get($response->headers->get('Location'))
         ->assertSee($thread->title)
@@ -65,7 +64,7 @@ class CreateThreadsTest extends TestCase
     public function a_thread_requires_a_title()
     {
         $this->publishThread(['title' => null])
-         ->assertStatus(422);
+        ->assertStatus(422);
     }
 
 
@@ -91,10 +90,10 @@ class CreateThreadsTest extends TestCase
         factory('App\Channel', 2)->create();
 
         $this->publishThread(['channel_id' => null])
-         ->assertStatus(422);
+        ->assertStatus(422);
 
         $this->publishThread(['channel_id' => 999])
-         ->assertStatus(422);
+        ->assertStatus(422);
     }
 
 
@@ -154,5 +153,23 @@ class CreateThreadsTest extends TestCase
             'type' => 'created_reply',
             'subject_type' => get_class($reply)
         ]);
+    }
+
+    /**
+     * User email confirmation
+     * @test
+     * @return void
+     */
+    public function authenticated_users_must_first_confirm_email_address_before_submitting_threads()
+    {
+        $user = factory('App\User')->states('unconfirmed')->create();
+
+        $this->withExceptionHandling()->signIn($user);
+
+        $thread = make('App\Thread');
+
+        return $this->post('/threads', $thread->toArray())
+        ->assertRedirect('/threads')
+        ->assertSessionHas('flash', 'You must first confirm your email address');
     }
 }

@@ -17,8 +17,14 @@
 							<h1 class="uk-text-bold">
 								{{$thread->title}}
 							</h1>
-							<img src="{{ $thread->creator->avatar_path }}" alt={{$thread->creator->name}} style="width: 100px; height: 100%; max-height: 100px;">
-							<h5><a class="uk-text-muted" href="{{$thread->path()}}">{{$thread->creator->name}}</a> |  {{$thread->created_at->diffForHumans()}}</h5>
+							<div uk-grid>
+								<div>
+									<img src="{{ $thread->creator->avatar_path }}" alt={{$thread->creator->name}} style="width: 25px; height: 100%; max-height: 25px;">
+								</div>
+								<div>
+									<h5><a class="uk-text-muted" href="{{$thread->path()}}">{{$thread->creator->name}}</a> |  {{$thread->created_at->diffForHumans()}}</h5>
+								</div>
+							</div>
 						</div>
 						<div>
 							@can('update', $thread)
@@ -35,7 +41,6 @@
 			</div>
 
 			<div class="uk-container uk-padding-small">
-
 				<replies @removed="repliesCount--" @added="repliesCount++"></replies>
 			</div>
 		</div>
