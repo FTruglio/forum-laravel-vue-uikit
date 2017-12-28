@@ -17,13 +17,16 @@
         </div>
         <div class="uk-card-body">
             <div v-if="editing">
-                <div class="uk-margin">
-                    <textarea class="uk-textarea" v-model="body"></textarea>
-                </div>
-                <button class="uk-button uk-button-primary uk-border-rounded uk-button-small" @click="update"> Update</button>
-                <button class="uk-button uk-button-default uk-border-rounded uk-button-small" @click="editing = false"> Cancel</button>
+                <form @submit="update">
+                    <div class="uk-margin">
+                        <textarea class="uk-textarea" v-model="body"></textarea>
+                    </div>
+                    <button class="uk-button uk-button-primary uk-border-rounded uk-button-small"> Update</button>
+                    <button @type="button" class="uk-button uk-button-default uk-border-rounded uk-button-small" @click="editing = false"> Cancel</button>
+                </form>
             </div>
-            <div v-else v-text="body"></div>
+            <div v-else  v-html="body">
+            </div>
         </div>
         <div class="uk-card-footer" v-if="canUpdate">
            <button class="uk-button uk-button-default uk-border-rounded uk-button-small" @click="editing = true"> Edit</button>
@@ -78,6 +81,7 @@ export default {
             });
 
             this.editing = false;
+
             flash('Reply updated!', 'success');
         },
 

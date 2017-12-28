@@ -10,6 +10,9 @@ use App\Filters\ThreadFilters;
 
 class ThreadController extends Controller
 {
+    /**
+     * Restricting users with auth middleware
+     */
     public function __construct()
     {
         $this->middleware('auth')->except('index', 'show');
@@ -131,6 +134,6 @@ class ThreadController extends Controller
         if ($channel->exists) {
             $threads->where('channel_id', $channel->id);
         }
-        return $threads->get();
+        return $threads->paginate(25);
     }
 }

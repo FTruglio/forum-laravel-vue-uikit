@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Reply;
 use Carbon\Carbon;
 use Tests\TestCase;
 
@@ -50,8 +51,7 @@ class ReplyTest extends TestCase
         $thread = create('App\Thread');
 
         // User A replies and mentions @userB
-        $reply = make(
-            'App\Reply',
+        $reply = new Reply(
             [
                 'user_id' => $userA->id,
                 'body' => '@userB look at this'
@@ -62,5 +62,25 @@ class ReplyTest extends TestCase
         $response->assertStatus(200);
 
         $this->assertEquals(['userB'], $reply->mentionedUsers($reply));
+    }
+
+    /**
+     * A basic test example.
+     * @test
+     * @return void
+     */
+    public function it_wraps_mentioned_usernames_in_the_body_within_anchor_tags()
+    {
+        // User A replies and mentions @userB
+        $reply = new Reply(
+            [
+                'body' => 'look at this @userB.'
+            ]
+        );
+
+        $this->assertEquals(
+            'look at this <a href="/profiles/userB">@userB</a>.',
+            $reply->body
+        );
     }
 }

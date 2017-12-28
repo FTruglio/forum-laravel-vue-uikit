@@ -51,7 +51,23 @@ class Reply extends Model
 
     public function mentionedUsers($reply)
     {
-        preg_match_all('/\@([^\s\.]+)/', $reply->body, $matches);
+        // Inspect the body of the reply for username mentions
+        // preg_match = will only return the first match
+        // preg_match_all = will return all matches
+        // Create a reg exp https://regexr.com/
+        // And then for each mentioned user, notify them
+        preg_match_all('/@([\w\-]+)/', $reply->body, $matches);
         return $matches[1];
+    }
+
+    public function setBodyAttribute($body)
+    {
+        // Find the user name and wrap that in an anchor tag.
+        // hey @userB
+        $this->attributes['body'] = preg_replace(
+            '/@([\w\-]+)/',
+            '<a href="/profiles/$1">$0</a>',
+            $body
+       );
     }
 }

@@ -40,3 +40,6 @@ Route::delete('/profiles/{user}/notifications/{notification}', 'UserNotification
 
 // API Routes
 Route::get('/threads/{channel}/{thread}/replies', 'ReplyController@index');
+
+Route::get('/api/users', 'Api\UserController@index');
+Route::post('/api/users/{user}/avatar', 'Api\UserAvatarController@store')->name('avatar');
