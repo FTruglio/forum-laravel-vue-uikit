@@ -7,6 +7,7 @@ use App\Channel;
 use App\Rules\SpamFree;
 use Illuminate\Http\Request;
 use App\Filters\ThreadFilters;
+use Illuminate\Support\Facades\Redis;
 
 class ThreadController extends Controller
 {
@@ -30,7 +31,15 @@ class ThreadController extends Controller
             return $threads;
         }
 
-        return view('threads.index', compact('threads'));
+        // To map over an array first make it a collection
+        // $trending = collect(Redis::zrevrange('trending_threads', 0, 4))->map(function ($thread) {
+        //     return json_decode($thread);
+        // });
+
+        // refactored array_map json_decode array
+        $trending = array_map('json_decode', Redis::zrevrange('trending_threads', 0, 4));
+
+        return view('threads.index', compact('threads', 'trending'));
     }
 
     /**
@@ -80,6 +89,11 @@ class ThreadController extends Controller
         if (auth()->check()) {
             auth()->user()->readThread($thread);
         }
+
+        Redis::zincrby('trending_threads', 1, json_encode([
+            'title' => $thread->title,
+            'path' => $thread->path()
+        ]));
 
         return view('threads.show', compact('thread'));
     }
