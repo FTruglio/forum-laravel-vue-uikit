@@ -31,7 +31,7 @@
         <p>{{$thread->body}}</p>
     </div>
     <div class="uk-card-footer">
-        {{$thread->visits()}} Visits
+        {{$thread->visits()->count()}} Visits
     </div>
 </div>
 @empty

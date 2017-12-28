@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Thread extends Model
 {
-    use RecordActivity, RecordVisit;
+    use RecordActivity;
 
     protected $guarded = [];
     protected $with = ['creator', 'channel'];
@@ -98,5 +98,10 @@ class Thread extends Model
         // compare that the carbon instance of the user reading the thread with the $thread->updated_at.
         $key = $user->visitedThreadCacheKey($this);
         return $this->updated_at > cache($key);
+    }
+
+    public function visits()
+    {
+        return new Visits($this);
     }
 }
