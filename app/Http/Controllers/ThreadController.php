@@ -66,6 +66,7 @@ class ThreadController extends Controller
             'channel_id' => request('channel_id'),
             'title' => request('title'),
             'body' => request('body'),
+            'slug' => request('title')
         ]);
 
         return redirect($thread->path())->with('flash', 'Your new thread has been created!');

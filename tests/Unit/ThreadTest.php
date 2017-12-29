@@ -15,6 +15,20 @@ class ThreadTest extends TestCase
         $this->thread = create('App\Thread');
     }
     /**
+     * A basic test example.
+     * @test
+     * @return void
+     */
+    public function a_thread_has_a_path()
+    {
+        $thread = create('App\Thread');
+
+        $this->assertEquals(
+        "/threads/{$thread->channel->slug}/{$thread->slug}",
+          $thread->path()
+      );
+    }
+    /**
     * @test
     * @return void
     */

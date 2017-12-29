@@ -14,6 +14,11 @@ class Thread extends Model
 
     protected $appends = ['isSubscribedTo'];
 
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
+
     public static function boot()
     {
         parent::boot();
@@ -27,7 +32,7 @@ class Thread extends Model
 
     public function path()
     {
-        return '/threads/' . $this->channel->slug . '/' . $this->id;
+        return '/threads/' . $this->channel->slug . '/' . $this->slug;
     }
 
     public function replies()
@@ -103,5 +108,29 @@ class Thread extends Model
     public function visits()
     {
         return new Visits($this);
+    }
+
+    public function setSlugAttribute($value)
+    {
+        if (static::whereSlug($slug = str_slug($value))->exists()) {
+            $slug = $this->incrementSlug($slug);
+        }
+
+        $this->attributes['slug'] = $slug;
+    }
+
+    public function incrementSlug($slug)
+    {
+        // Help Me => help-me
+        // Help Me => help-me-2
+        $max = static::whereTitle($this->title)->latest('id')->value('slug');
+        // is the last character a digit
+        if (is_numeric($max[-1])) {
+            return preg_replace_callback('/(\d+)$/', function ($matches) {
+                return $matches[1] + 1;
+            }, $max);
+        }
+
+        return "{$slug}-2";
     }
 }

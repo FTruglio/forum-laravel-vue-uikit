@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Thread;
 use Tests\TestCase;
 
 class CreateThreadsTest extends TestCase
@@ -18,7 +19,30 @@ class CreateThreadsTest extends TestCase
     public function a_thread_can_make_a_string_path()
     {
         $thread = create('App\Thread');
-        $this->assertEquals("/threads/{$thread->channel->slug}/{$thread->id}", $thread->path());
+        $this->assertEquals("/threads/{$thread->channel->slug}/{$thread->slug}", $thread->path());
+    }
+
+    /**
+     * A basic test example.
+     * @test
+     * @return void
+     */
+    public function a_thread_requires_a_unique_slug()
+    {
+        $this->signIn();
+
+        $thread = create('App\Thread', ['title' => 'Foo Title', 'slug' => 'foo-title']);
+
+        $this->assertEquals($thread->fresh()->slug, "foo-title");
+        // Options to persist uniquene slugs:
+        // foo-title-123434
+        // foo-title-timestamp
+        // foo-title-2
+        // foo-title-3
+
+        $this->post('/threads', $thread->toArray());
+
+        $this->assertTrue(Thread::whereSlug('foo-title-2')->exists());
     }
 
     /**
