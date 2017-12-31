@@ -19,6 +19,10 @@ class Thread extends Model
         return 'slug';
     }
 
+    /**
+     * Model events
+     * @return [type] [description]
+     */
     public static function boot()
     {
         parent::boot();
@@ -27,6 +31,10 @@ class Thread extends Model
             $thread->replies->each(function ($reply) {
                 $reply->delete();
             });
+        });
+
+        static::created(function ($thread) {
+            $thread->update(['slug' => $thread->title]);
         });
     }
 
@@ -112,25 +120,23 @@ class Thread extends Model
 
     public function setSlugAttribute($value)
     {
-        if (static::whereSlug($slug = str_slug($value))->exists()) {
-            $slug = $this->incrementSlug($slug);
+        $slug = str_slug($value);
+        $count = 2;
+
+        if (static::whereSlug($slug)->exists()) {
+            $slug = "{$slug}-" . $this->id;
         }
 
         $this->attributes['slug'] = $slug;
     }
 
-    public function incrementSlug($slug)
+    public function markBestReply($reply)
     {
-        // Help Me => help-me
-        // Help Me => help-me-2
-        $max = static::whereTitle($this->title)->latest('id')->value('slug');
-        // is the last character a digit
-        if (is_numeric($max[-1])) {
-            return preg_replace_callback('/(\d+)$/', function ($matches) {
-                return $matches[1] + 1;
-            }, $max);
-        }
+        $this->update(['best_reply_id' => $reply->id]);
+    }
 
-        return "{$slug}-2";
+    public function lock()
+    {
+        $this->update(['locked' => true]);
     }
 }

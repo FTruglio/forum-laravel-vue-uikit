@@ -42,13 +42,33 @@ class MentionUsersTest extends TestCase
      * @test
      * @return void
      */
-    public function it_can_fetch_all_mentioned_users_starting_with_given_characters()
+    public function it_can_detect_all_mentioned_users_in_the_body()
     {
-        create('App\User', ['name' => 'james']);
-        create('App\User', ['name' => 'james2']);
-        create('App\User', ['name' => 'jane']);
+        $reply = make(
+            'App\Reply',
+            [
+                'body' => '@JaneDoe look at this'
+            ]
+        );
 
-        $results = $this->json('GET', '/api/users', ['name' => 'james']);
-        $this->assertCount(2, $results->json());
+        $this->assertEquals(['JaneDoe'], $reply->mentionedUsers($reply));
+    }
+
+    /**
+     * @test
+     */
+    public function it_wraps_mentioned_usernames_in_the_body_withing_anchor_tags()
+    {
+        $reply = make(
+            'App\Reply',
+            [
+                'body' => 'Hello @JaneDoe.'
+            ]
+        );
+
+        $this->assertEquals(
+            'Hello <a href="/profiles/JaneDoe">@JaneDoe</a>.',
+            $reply->body
+        );
     }
 }

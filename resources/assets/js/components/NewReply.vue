@@ -19,7 +19,7 @@
             </div>
         </div>
         <div v-else>
-            <p>Please <a href="/login"> sign in </a> to participate in this discussion.</p>
+            <p class="uk-text-center">Please <a href="/login"> sign in </a> to participate in this discussion.</p>
         </div>
     </div>
 
@@ -35,11 +35,6 @@ export default {
             body: '',
         }
     },
-    computed: {
-        signedIn() {
-            return window.App.signedIn;
-        }
-    },
 
     mounted() {
         $('#inputor').atwho({
@@ -47,7 +42,6 @@ export default {
             delay: 750,
             callbacks: {
                 remoteFilter: function(query, callback) {
-                    console.log('called');
                     $.getJSON("/api/users", {name: query}, function(usernames) {
                         callback(usernames)
                     });
@@ -68,7 +62,6 @@ export default {
 
                 this.$emit('created', data);
             }).catch(error => {
-                console.log(error.response);
                 flash(error.response.data, 'danger');
             });
         }

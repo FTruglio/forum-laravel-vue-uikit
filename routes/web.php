@@ -24,13 +24,20 @@ Route::delete('threads/{channel}/{thread}', 'ThreadController@destroy');
 Route::post('threads', 'ThreadController@store')->middleware('confirm-email');
 Route::post('threads/{channel}/{thread}/replies', 'ReplyController@store');
 
+Route::patch('threads/{channel}/{thread}', 'ThreadController@update')->name('threads.update');
+
+Route::post('locked-threads/{thread}', 'LockedThreadController@store')->name('locked-threads.store')->middleware('administrator');
+
+
 Route::post('threads/{channel}/{thread}/subscribtions', 'ThreadSubscriptionController@store')->middleware('auth');
 Route::delete('threads/{channel}/{thread}/subscribtions', 'ThreadSubscriptionController@destroy')->middleware('auth');
 
 Route::post('replies/{reply}/favorites', 'FavoriteController@store');
 Route::delete('replies/{reply}/favorites', 'FavoriteController@destroy');
 Route::patch('replies/{reply}', 'ReplyController@update');
-Route::delete('replies/{reply}', 'ReplyController@destroy');
+Route::delete('replies/{reply}', 'ReplyController@destroy')->name('replies.destory');
+
+Route::post('replies/{reply}/best', 'BestReplyController@store');
 
 Route::get('/profiles/{user}', 'ProfileController@show')->name('profile');
 Route::get('/profiles/{user}/notifications', 'UserNotificationController@index');

@@ -2,36 +2,39 @@
 
 namespace Tests;
 
-use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Contracts\Debug\ExceptionHandler;
 use App\Exceptions\Handler;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Contracts\Debug\ExceptionHandler;
+use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
 {
     use CreatesApplication, DatabaseMigrations;
-    
-    
+
+
     protected function setUp()
     {
         parent::setUp();
         $this->disableExceptionHandling();
+        // Because of foriegn key constraints MYSQL will work but testing with SQLlite  need to enable foreign_key constraints.
+        DB::statement('PRAGMA foreign_keys=on');
     }
-    
-    
+
+
     protected function signIn($user = null)
     {
         $user = $user ?: create('App\User');
-        
+
         $this->actingAs($user);
-        
+
         return $this;
     }
-    
+
     protected function disableExceptionHandling()
     {
         $this->oldExceptionHandler = $this->app->make(ExceptionHandler::class);
-        
+
         $this->app->instance(ExceptionHandler::class, new class extends Handler {
             public function __construct()
             {

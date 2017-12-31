@@ -30,10 +30,9 @@ export default {
 
     methods: {
         flash(data) {
-            if (data) {
-                this.body = data.message;
-                this.level = data.level;
-            }
+
+            this.body = data.message;
+            this.level = data.level;
 
             this.show = true;
 

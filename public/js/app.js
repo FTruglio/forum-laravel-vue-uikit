@@ -38380,7 +38380,7 @@ return zhTw;
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(134);
-module.exports = __webpack_require__(199);
+module.exports = __webpack_require__(196);
 
 
 /***/ }),
@@ -38480,15 +38480,29 @@ window.flash = function (message) {
     window.events.$emit('flash', { message: message, level: level });
 };
 
-window.Vue.prototype.authorize = function (handler) {
-    // Additional admin privaliges can be added here.
-    var user = window.App.user;
+var authorizations = __webpack_require__(203);
 
-    return user ? handler(user) : false;
+window.Vue.prototype.authorize = function () {
+    // Additional admin privaliges can be added here.
+    if (!window.App.signedIn) {
+        return false;
+    }
+
+    for (var _len = arguments.length, params = Array(_len), _key = 0; _key < _len; _key++) {
+        params[_key] = arguments[_key];
+    }
+
+    if (typeof params[0] === 'string') {
+        return authorizations[params[0]](params[1]);
+    }
+
+    return params[0](window.App.user);
 
     // for testing
     // return true;
 };
+
+Vue.prototype.signedIn = window.App.signedIn;
 
 /***/ }),
 /* 136 */
@@ -57194,10 +57208,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
     methods: {
         flash: function flash(data) {
-            if (data) {
-                this.body = data.message;
-                this.level = data.level;
-            }
+
+            this.body = data.message;
+            this.level = data.level;
 
             this.show = true;
 
@@ -57503,14 +57516,24 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-    props: ['initialRepliesCount'],
+    props: ['dataThread'],
 
     components: { Replies: __WEBPACK_IMPORTED_MODULE_0__components_Replies_vue___default.a, SubscribeButton: __WEBPACK_IMPORTED_MODULE_1__components_SubscribeButton_vue___default.a },
 
     data: function data() {
         return {
-            repliesCount: this.initialRepliesCount
+            repliesCount: this.dataThread.replies_count,
+            locked: this.dataThread.locked
         };
+    },
+
+
+    methods: {
+        lock: function lock() {
+            this.locked = true;
+
+            axios.post('/locked-threads/' + this.dataThread.slug);
+        }
     }
 });
 
@@ -57572,6 +57595,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__NewReply_vue__ = __webpack_require__(180);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__NewReply_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__NewReply_vue__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__mixins_collection__ = __webpack_require__(185);
+//
+//
+//
+//
 //
 //
 //
@@ -57728,45 +57755,50 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
 
 
 
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-    props: ['data'],
+    props: ['dataReply'],
 
     components: { Favorite: __WEBPACK_IMPORTED_MODULE_0__Favorite_vue___default.a },
 
     data: function data() {
         return {
             editing: false,
-            id: this.data.id,
-            body: this.data.body
+            id: this.dataReply.id,
+            body: this.dataReply.body,
+            isBest: this.dataReply.isBest
         };
     },
 
 
     computed: {
         ago: function ago() {
-            return __WEBPACK_IMPORTED_MODULE_1_moment___default()(this.data.created_at).fromNow() + '...';
-        },
-        signedIn: function signedIn() {
-            return window.App.signedIn;
-        },
-        canUpdate: function canUpdate() {
-            var _this = this;
-
-            // Using a mixin registered in the bootstrap.js use a more flexible authorize global.
-            return this.authorize(function (user) {
-                return _this.data.user_id == user.id;
-            });
+            return __WEBPACK_IMPORTED_MODULE_1_moment___default()(this.dataReply.created_at).fromNow() + '...';
         }
     },
 
+    created: function created() {
+        var _this = this;
+
+        window.events.$on('best-reply-selected', function (id) {
+            _this.isBest = id === _this.id;
+        });
+    },
+
+
     methods: {
         update: function update() {
-            axios.patch('/replies/' + this.data.id, {
+            axios.patch('/replies/' + this.dataReply.id, {
                 body: this.body
             }).catch(function (error) {
                 flash(error.response.data, 'danger');
@@ -57777,13 +57809,20 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             flash('Reply updated!', 'success');
         },
         destroy: function destroy() {
-            axios.delete('/replies/' + this.data.id);
+            axios.delete('/replies/' + this.id);
             // The child component Reply.vue is emmiting an event that the item has been deleted. Now the parent component Replies.vue can listen for the event.
-            this.$emit('deleted', this.data.id);
+            this.$emit('deleted', this.id);
 
             // $(this.$el).fadeOut(300, () => {
             //     flash('Your reply has been deleted!');
             // });
+        },
+        markBest: function markBest() {
+            axios.post('/replies/' + this.id + '/best');
+
+            flash('This is the best reply');
+
+            window.events.$emit('best-reply-selected', this.id);
         }
     }
 
@@ -58190,7 +58229,8 @@ var render = function() {
   return _c(
     "div",
     {
-      staticClass: "uk-card uk-card-default uk-margin-small-top",
+      staticClass: "uk-card uk-margin-small-top uk-box-shadow-medium",
+      class: _vm.isBest ? "uk-card-primary" : "uk-card-default",
       attrs: { id: "reply-" + _vm.id }
     },
     [
@@ -58202,8 +58242,8 @@ var render = function() {
             _c("div", [
               _c("h5", [
                 _c("a", {
-                  attrs: { href: "/profiles/" + _vm.data.owner.name },
-                  domProps: { textContent: _vm._s(_vm.data.owner.name) }
+                  attrs: { href: "/profiles/" + _vm.dataReply.owner.name },
+                  domProps: { textContent: _vm._s(_vm.dataReply.owner.name) }
                 }),
                 _vm._v(" said "),
                 _c("span", { domProps: { textContent: _vm._s(_vm.ago) } })
@@ -58217,7 +58257,7 @@ var render = function() {
             ? _c(
                 "div",
                 { staticClass: "uk-align-right" },
-                [_c("favorite", { attrs: { reply: _vm.data } })],
+                [_c("favorite", { attrs: { reply: _vm.dataReply } })],
                 1
               )
             : _vm._e()
@@ -58265,8 +58305,8 @@ var render = function() {
                   {
                     staticClass:
                       "uk-button uk-button-default uk-border-rounded uk-button-small",
+                    attrs: { type: "button" },
                     on: {
-                      type: _vm.button,
                       click: function($event) {
                         _vm.editing = false
                       }
@@ -58279,32 +58319,66 @@ var render = function() {
           : _c("div", { domProps: { innerHTML: _vm._s(_vm.body) } })
       ]),
       _vm._v(" "),
-      _vm.canUpdate
-        ? _c("div", { staticClass: "uk-card-footer" }, [
-            _c(
-              "button",
-              {
-                staticClass:
-                  "uk-button uk-button-default uk-border-rounded uk-button-small",
-                on: {
-                  click: function($event) {
-                    _vm.editing = true
-                  }
-                }
-              },
-              [_vm._v(" Edit")]
-            ),
-            _vm._v(" "),
-            _c(
-              "button",
-              {
-                staticClass:
-                  "uk-button uk-button-danger uk-border-rounded uk-button-small",
-                on: { click: _vm.destroy }
-              },
-              [_vm._v("X Destroy")]
-            )
-          ])
+      _vm.authorize("owns", _vm.dataReply) ||
+      _vm.authorize("owns", _vm.dataReply.thread)
+        ? _c(
+            "div",
+            {
+              staticClass: "uk-card-footer uk-child-width-expand",
+              attrs: { "uk-grid": "" }
+            },
+            [
+              _vm.authorize("owns", _vm.dataReply)
+                ? _c("div", [
+                    _c(
+                      "button",
+                      {
+                        staticClass:
+                          "uk-button uk-button-default uk-border-rounded uk-button-small",
+                        on: {
+                          click: function($event) {
+                            _vm.editing = true
+                          }
+                        }
+                      },
+                      [_vm._v(" Edit")]
+                    ),
+                    _vm._v(" "),
+                    _c(
+                      "button",
+                      {
+                        staticClass:
+                          "uk-button uk-button-danger uk-border-rounded uk-button-small",
+                        on: { click: _vm.destroy }
+                      },
+                      [_vm._v("X Destroy")]
+                    )
+                  ])
+                : _vm._e(),
+              _vm._v(" "),
+              _c("div", [
+                _vm.authorize("owns", _vm.dataReply.thread)
+                  ? _c(
+                      "button",
+                      {
+                        directives: [
+                          {
+                            name: "show",
+                            rawName: "v-show",
+                            value: !_vm.isBest,
+                            expression: "! isBest"
+                          }
+                        ],
+                        staticClass:
+                          "uk-button uk-align-right uk-button-primary uk-border-rounded uk-button-small",
+                        on: { click: _vm.markBest }
+                      },
+                      [_vm._v("Best Reply?")]
+                    )
+                  : _vm._e()
+              ])
+            ]
+          )
         : _vm._e()
     ]
   )
@@ -58413,20 +58487,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             body: ''
         };
     },
-
-    computed: {
-        signedIn: function signedIn() {
-            return window.App.signedIn;
-        }
-    },
-
     mounted: function mounted() {
         $('#inputor').atwho({
             at: "@",
             delay: 750,
             callbacks: {
                 remoteFilter: function remoteFilter(query, callback) {
-                    console.log('called');
                     $.getJSON("/api/users", { name: query }, function (usernames) {
                         callback(usernames);
                     });
@@ -58452,7 +58518,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
                 _this.$emit('created', data);
             }).catch(function (error) {
-                console.log(error.response);
                 flash(error.response.data, 'danger');
             });
         }
@@ -60190,7 +60255,7 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("p", [
+    return _c("p", { staticClass: "uk-text-center" }, [
       _vm._v("Please "),
       _c("a", { attrs: { href: "/login" } }, [_vm._v(" sign in ")]),
       _vm._v(" to participate in this discussion.")
@@ -60248,7 +60313,7 @@ var render = function() {
           [
             _c("reply", {
               key: reply.id,
-              attrs: { data: reply },
+              attrs: { "data-reply": reply },
               on: {
                 deleted: function($event) {
                   _vm.remove(index)
@@ -60265,7 +60330,13 @@ var render = function() {
         on: { changed: _vm.fetchData }
       }),
       _vm._v(" "),
-      _c("new-reply", { on: { created: _vm.add } })
+      _vm.$parent.locked
+        ? _c("p", [
+            _vm._v(
+              "\n        This thread has been locked. No more replies are allowed.\n    "
+            )
+          ])
+        : _c("new-reply", { on: { created: _vm.add } })
     ],
     2
   )
@@ -60590,7 +60661,7 @@ var normalizeComponent = __webpack_require__(2)
 /* script */
 var __vue_script__ = __webpack_require__(194)
 /* template */
-var __vue_template__ = __webpack_require__(198)
+var __vue_template__ = __webpack_require__(195)
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
@@ -60634,7 +60705,7 @@ module.exports = Component.exports
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__ImageUpload__ = __webpack_require__(195);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__ImageUpload__ = __webpack_require__(200);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__ImageUpload___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__ImageUpload__);
 //
 //
@@ -60698,116 +60769,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* 195 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var disposed = false
-var normalizeComponent = __webpack_require__(2)
-/* script */
-var __vue_script__ = __webpack_require__(196)
-/* template */
-var __vue_template__ = __webpack_require__(197)
-/* template functional */
-var __vue_template_functional__ = false
-/* styles */
-var __vue_styles__ = null
-/* scopeId */
-var __vue_scopeId__ = null
-/* moduleIdentifier (server only) */
-var __vue_module_identifier__ = null
-var Component = normalizeComponent(
-  __vue_script__,
-  __vue_template__,
-  __vue_template_functional__,
-  __vue_styles__,
-  __vue_scopeId__,
-  __vue_module_identifier__
-)
-Component.options.__file = "resources/assets/js/components/ImageUpload.vue"
-
-/* hot reload */
-if (false) {(function () {
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), false)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-319f68d5", Component.options)
-  } else {
-    hotAPI.reload("data-v-319f68d5", Component.options)
-  }
-  module.hot.dispose(function (data) {
-    disposed = true
-  })
-})()}
-
-module.exports = Component.exports
-
-
-/***/ }),
-/* 196 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-//
-//
-//
-//
-
-/* harmony default export */ __webpack_exports__["default"] = ({
-
-    methods: {
-        onChange: function onChange(e) {
-            var _this = this;
-
-            if (!e.target.files.length) {
-                return;
-            }
-            // console.log(e.target.files[0]);
-            var file = e.target.files[0];
-
-            var reader = new FileReader();
-            // Define a callback function to run, when FileReader finishes its job
-            reader.onload = function (e) {
-                _this.$emit('loaded', {
-                    src: e.target.result,
-                    file: file
-                });
-                // Note: arrow function used here, so that "this.file" refers to the file of Vue component
-                // Read image as base64 and set to imageData
-                // this.file = e.target.result;
-            };
-            // Start the reader job - read file as a data url (base64 format)
-            reader.readAsDataURL(file);
-        }
-    }
-});
-
-/***/ }),
-/* 197 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var render = function() {
-  var _vm = this
-  var _h = _vm.$createElement
-  var _c = _vm._self._c || _h
-  return _c("input", {
-    attrs: { type: "file", accept: "image/*" },
-    on: { change: _vm.onChange }
-  })
-}
-var staticRenderFns = []
-render._withStripped = true
-module.exports = { render: render, staticRenderFns: staticRenderFns }
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-    require("vue-hot-reload-api")      .rerender("data-v-319f68d5", module.exports)
-  }
-}
-
-/***/ }),
-/* 198 */
-/***/ (function(module, exports, __webpack_require__) {
-
 var render = function() {
   var _vm = this
   var _h = _vm.$createElement
@@ -60859,10 +60820,140 @@ if (false) {
 }
 
 /***/ }),
-/* 199 */
+/* 196 */
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
+
+/***/ }),
+/* 197 */,
+/* 198 */,
+/* 199 */,
+/* 200 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(2)
+/* script */
+var __vue_script__ = __webpack_require__(201)
+/* template */
+var __vue_template__ = __webpack_require__(202)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/assets/js/components/ImageUpload.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-319f68d5", Component.options)
+  } else {
+    hotAPI.reload("data-v-319f68d5", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 201 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+
+    methods: {
+        onChange: function onChange(e) {
+            var _this = this;
+
+            if (!e.target.files.length) {
+                return;
+            }
+            // console.log(e.target.files[0]);
+            var file = e.target.files[0];
+
+            var reader = new FileReader();
+            // Define a callback function to run, when FileReader finishes its job
+            reader.onload = function (e) {
+                _this.$emit('loaded', {
+                    src: e.target.result,
+                    file: file
+                });
+                // Note: arrow function used here, so that "this.file" refers to the file of Vue component
+                // Read image as base64 and set to imageData
+                // this.file = e.target.result;
+            };
+            // Start the reader job - read file as a data url (base64 format)
+            reader.readAsDataURL(file);
+        }
+    }
+});
+
+/***/ }),
+/* 202 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("input", {
+    attrs: { type: "file", accept: "image/*" },
+    on: { change: _vm.onChange }
+  })
+}
+var staticRenderFns = []
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-319f68d5", module.exports)
+  }
+}
+
+/***/ }),
+/* 203 */
+/***/ (function(module, exports) {
+
+var user = window.App.user;
+
+module.exports = {
+    owns: function owns(model) {
+        var prop = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'user_id';
+
+        return model[prop] == user.id;
+    },
+    isAdmin: function isAdmin() {
+        return user.is_admin;
+    }
+};
 
 /***/ })
 /******/ ]);

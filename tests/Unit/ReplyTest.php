@@ -53,12 +53,14 @@ class ReplyTest extends TestCase
         // User A replies and mentions @userB
         $reply = new Reply(
             [
+                'thread_id' => $thread->id,
                 'user_id' => $userA->id,
                 'body' => '@userB look at this'
             ]
         );
         // The reply is posted
         $response = $this->json('POST', $thread->path() . '/replies', $reply->toArray());
+
         $response->assertStatus(200);
 
         $this->assertEquals(['userB'], $reply->mentionedUsers($reply));
@@ -82,5 +84,21 @@ class ReplyTest extends TestCase
             'look at this <a href="/profiles/userB">@userB</a>.',
             $reply->body
         );
+    }
+
+    /**
+     * A basic test example.
+     * @test
+     * @return void
+     */
+    public function it_knows_if_it_is_the_best_reply()
+    {
+        $reply = create('App\Reply');
+
+        $this->assertFalse($reply->isBest());
+
+        $reply->thread->update(['best_reply_id' => $reply->id]);
+
+        $this->assertTrue($reply->fresh()->isBest());
     }
 }
