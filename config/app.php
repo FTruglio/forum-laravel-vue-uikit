@@ -27,6 +27,7 @@ return [
     */
 
     'env' => env('APP_ENV', 'production'),
+    'recaptcha_secret' => env('RECAPTCHA_SECERET_KEY'),
 
     /*
     |--------------------------------------------------------------------------

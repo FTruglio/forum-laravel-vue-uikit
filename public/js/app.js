@@ -57523,16 +57523,47 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     data: function data() {
         return {
             repliesCount: this.dataThread.replies_count,
-            locked: this.dataThread.locked
+            locked: this.dataThread.locked,
+            editing: false,
+            title: this.dataThread.title,
+            body: this.dataThread.body,
+            form: {
+                title: this.dataThread.title,
+                body: this.dataThread.body
+            }
         };
     },
 
 
     methods: {
-        lock: function lock() {
-            this.locked = true;
+        toggleLock: function toggleLock() {
+            var uri = '/locked-threads/' + this.dataThread.slug;
 
-            axios.post('/locked-threads/' + this.dataThread.slug);
+            axios[this.locked ? 'delete' : 'post'](uri);
+
+            this.locked = !this.locked;
+        },
+        update: function update() {
+            var _this = this;
+
+            //axios
+            // /threads/channel/thread-slug
+            var uri = '/threads/' + this.dataThread.channel.slug + '/' + this.dataThread.slug;
+
+            axios.patch(uri, this.form).then(function () {
+                _this.editing = false;
+
+                _this.title = _this.form.title;
+                _this.body = _this.form.body;
+
+                flash('Your thread has been updated');
+            });
+        },
+        resetForm: function resetForm() {
+            this.editing = false;
+
+            this.form.title = this.dataThread.title;
+            this.form.body = this.dataThread.body;
         }
     }
 });
@@ -60538,7 +60569,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
-//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     data: function data() {
@@ -60557,10 +60587,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     created: function created() {
         var _this = this;
 
-        axios.get('/profiles/' + this.user.name + '/notifications').then(function (_ref) {
-            var data = _ref.data;
-            _this.notifications = data;
-        });
+        if (this.user) {
+            axios.get('/profiles/' + this.user.name + '/notifications').then(function (_ref) {
+                var data = _ref.data;
+                _this.notifications = data;
+            });
+        }
     },
 
 

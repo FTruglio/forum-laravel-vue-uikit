@@ -14,4 +14,13 @@ class LockedThreadController extends Controller
 
         $thread->lock();
     }
+
+    public function destroy(Thread $thread)
+    {
+        if (! auth()->user()->is_admin) {
+            return response('You do not have permission to lock this thread', 403);
+        }
+
+        $thread->unLock();
+    }
 }

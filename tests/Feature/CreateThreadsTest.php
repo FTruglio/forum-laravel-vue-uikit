@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Thread;
 use Tests\TestCase;
+use App\Rules\Recaptcha;
 
 class CreateThreadsTest extends TestCase
 {
@@ -11,6 +12,12 @@ class CreateThreadsTest extends TestCase
     {
         parent::setUp();
         $this->thread = create('App\Thread');
+
+        app()->singleton(Recaptcha::class, function () {
+            return \Mockery::mock(Recaptcha::class, function ($m) {
+                $m->shouldReceive('passes')->andReturn(true);
+            });
+        });
     }
     /**
     * @test
@@ -35,7 +42,7 @@ class CreateThreadsTest extends TestCase
 
         $this->assertEquals($thread->fresh()->slug, "foo-title");
 
-        $thread =  $this->postJson('/threads', $thread->toArray())->json();
+        $thread =  $this->postJson('/threads', $thread->toArray() + ['g-recaptcha-response' => 'token'])->json();
 
         $this->assertEquals("foo-title-{$thread['id']}", $thread['slug']);
     }
@@ -51,7 +58,7 @@ class CreateThreadsTest extends TestCase
 
         $thread = create('App\Thread', ['title' => 'Some Title 24']);
 
-        $thread = $this->postJson('/threads', $thread->toArray())->json();
+        $thread = $this->postJson('/threads', $thread->toArray() + ['g-recaptcha-response' => 'token'])->json();
 
         $this->assertEquals("some-title-24-{$thread['id']}", $thread['slug']);
     }
@@ -84,11 +91,47 @@ class CreateThreadsTest extends TestCase
 
         $thread = make('App\Thread', ['user_id' => auth()->id()]);
 
-        $response = $this->post('/threads', $thread->toArray());
+        $response = $this->post('/threads', $thread->toArray() + ['g-recaptcha-response' => 'token']);
 
         $this->get($response->headers->get('Location'))
         ->assertSee($thread->title)
         ->assertSee($thread->body);
+    }
+
+    /**
+     * A basic test example.
+     * @test
+     * @return void
+     */
+    public function a_user_can_update_a_thread()
+    {
+        $this->signIn();
+
+        $thread = create('App\Thread', ['user_id' => auth()->id()]);
+
+        $this->patch($thread->path(), ['title' => 'Changed title', 'body' => 'Changed body']);
+
+        $this->assertEquals('Changed title', $thread->fresh()->title);
+        $this->assertEquals('Changed body', $thread->fresh()->body);
+    }
+
+    /**
+     * A basic test example.
+     * @test
+     * @return void
+     */
+    public function a_unauthorized_user_can_not_update_a_thread()
+    {
+        $this->withExceptionHandling();
+
+        $this->signIn();
+
+        $thread = create('App\Thread', ['user_id' => create('App\User')->id]);
+
+        $this->patch(
+            $thread->path(),
+            ['title' => 'Changed title', 'body' => 'Changed body']
+        )->assertStatus(403);
     }
 
     /**
@@ -111,6 +154,19 @@ class CreateThreadsTest extends TestCase
     public function a_thread_requires_a_body()
     {
         $this->publishThread(['body' => null])
+        ->assertStatus(422);
+    }
+
+    /**
+     * A basic test example.
+     * @test
+     * @return void
+     */
+    public function a_thread_reqiures_recaptcha_validation()
+    {
+        unset(app()[Recaptcha::class]);
+
+        $this->publishThread(['g-recaptcha-response' => 'test'])
         ->assertStatus(422);
     }
 

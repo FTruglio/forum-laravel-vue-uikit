@@ -18,8 +18,10 @@ Auth::routes();
 // Route::get('home', 'HomeController@index')->name('home');
 Route::get('threads', 'ThreadController@index');
 Route::get('threads/create', 'ThreadController@create')->middleware('confirm-email');
+Route::get('threads/search', 'SearchController@show');
 Route::get('threads/{channel}', 'ThreadController@index');
 Route::get('threads/{channel}/{thread}', 'ThreadController@show');
+Route::patch('threads/{channel}/{thread}', 'ThreadController@update');
 Route::delete('threads/{channel}/{thread}', 'ThreadController@destroy');
 Route::post('threads', 'ThreadController@store')->middleware('confirm-email');
 Route::post('threads/{channel}/{thread}/replies', 'ReplyController@store');
@@ -27,6 +29,7 @@ Route::post('threads/{channel}/{thread}/replies', 'ReplyController@store');
 Route::patch('threads/{channel}/{thread}', 'ThreadController@update')->name('threads.update');
 
 Route::post('locked-threads/{thread}', 'LockedThreadController@store')->name('locked-threads.store')->middleware('administrator');
+Route::delete('locked-threads/{thread}', 'LockedThreadController@destroy')->name('locked-threads.store')->middleware('administrator');
 
 
 Route::post('threads/{channel}/{thread}/subscribtions', 'ThreadSubscriptionController@store')->middleware('auth');

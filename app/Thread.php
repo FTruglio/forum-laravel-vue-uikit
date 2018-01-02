@@ -2,12 +2,13 @@
 
 namespace App;
 
+use Laravel\Scout\Searchable;
 use App\Events\ThreadReceivedNewReply;
 use Illuminate\Database\Eloquent\Model;
 
 class Thread extends Model
 {
-    use RecordActivity;
+    use RecordActivity, Searchable;
 
     protected $guarded = [];
     protected $with = ['creator', 'channel'];
@@ -138,5 +139,10 @@ class Thread extends Model
     public function lock()
     {
         $this->update(['locked' => true]);
+    }
+
+    public function unLock()
+    {
+        $this->update(['locked' => false]);
     }
 }

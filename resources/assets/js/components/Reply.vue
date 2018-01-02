@@ -25,7 +25,7 @@
                     <button type="button" class="uk-button uk-button-default uk-border-rounded uk-button-small" @click="editing = false"> Cancel</button>
                 </form>
             </div>
-            <div v-else  v-html="body">
+            <div v-else v-html="body">
             </div>
         </div>
         <div class="uk-card-footer uk-child-width-expand" v-if="authorize('owns', dataReply) || authorize('owns', dataReply.thread)" uk-grid>

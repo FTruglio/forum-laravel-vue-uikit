@@ -2,7 +2,6 @@
     <div class="uk-offcanvas-content" v-if="notifications.length">
 
         <!-- The whole page content goes here -->
-
         <span uk-icon="icon: bell" type="button" uk-toggle="target: #offcanvas-usage"></span>
 
         <div id="offcanvas-usage" uk-offcanvas="flip: true">
@@ -40,8 +39,10 @@ export default {
     },
 
     created() {
-        axios.get('/profiles/' + this.user.name + '/notifications')
-        .then(({data}) => {this.notifications = data});
+        if (this.user) {
+            axios.get('/profiles/' + this.user.name + '/notifications')
+            .then(({data}) => {this.notifications = data});
+        }
     },
 
     methods: {
