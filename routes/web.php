@@ -15,6 +15,7 @@ Route::get('/', 'ThreadController@index');
 
 Auth::routes();
 
+Route::view('scan', 'scan');
 // Route::get('home', 'HomeController@index')->name('home');
 Route::get('threads', 'ThreadController@index');
 Route::get('threads/create', 'ThreadController@create')->middleware('confirm-email');
