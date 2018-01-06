@@ -19,7 +19,7 @@
             <div v-if="editing">
                 <form @submit="update">
                     <div class="uk-margin">
-                        <textarea class="uk-textarea" v-model="body"></textarea>
+                        <wysiwyg name="body" v-model="body" placeholder="Have something to say?" :shouldClear="completed"></wysiwyg>
                     </div>
                     <button class="uk-button uk-button-primary uk-border-rounded uk-button-small"> Update</button>
                     <button type="button" class="uk-button uk-button-default uk-border-rounded uk-button-small" @click="editing = false"> Cancel</button>
@@ -30,16 +30,16 @@
         </div>
         <div class="uk-card-footer uk-child-width-expand" v-if="authorize('owns', dataReply) || authorize('owns', dataReply.thread)" uk-grid>
             <div v-if="authorize('owns', dataReply)">
-               <button class="uk-button uk-button-default uk-border-rounded uk-button-small" @click="editing = true"> Edit</button>
-               <button class="uk-button uk-button-danger uk-border-rounded uk-button-small" @click="destroy">X Destroy</button>
-           </div>
+             <button class="uk-button uk-button-default uk-border-rounded uk-button-small" @click="editing = true"> Edit</button>
+             <button class="uk-button uk-button-danger uk-border-rounded uk-button-small" @click="destroy">X Destroy</button>
+         </div>
 
-           <div>
-               <button v-if="authorize('owns', dataReply.thread)" class="uk-button uk-align-right uk-button-primary uk-border-rounded uk-button-small" v-show="! isBest" @click="markBest">Best Reply?</button>
-           </div>
+         <div>
+             <button v-if="authorize('owns', dataReply.thread)" class="uk-button uk-align-right uk-button-primary uk-border-rounded uk-button-small" v-show="! isBest" @click="markBest">Best Reply?</button>
+         </div>
 
-       </div>
-   </div>
+     </div>
+ </div>
 </template>
 
 <script>
@@ -59,7 +59,8 @@ export default {
             editing: false,
             id: this.dataReply.id,
             body: this.dataReply.body,
-            isBest: this.dataReply.isBest
+            isBest: this.dataReply.isBest,
+            completed: false
         }
     },
 
@@ -82,6 +83,8 @@ export default {
             }).catch(error => {
                 flash(error.response.data, 'danger');
             });
+
+            this.completed = true;
 
             this.editing = false;
 

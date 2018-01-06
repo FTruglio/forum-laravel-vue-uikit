@@ -6,12 +6,7 @@
                     <h4 class="uk-card-title">Contribute</h4>
                 </div>
                 <div class="uk-card-body">
-                    <textarea
-                    id="inputor"
-                    class="uk-textarea"
-                    placeholder="Have something to say?"
-                    rows="5"
-                    v-model="body"></textarea>
+                    <wysiwyg name="body" v-model="body" placeholder="Have something to say?" :shouldClear="completed"></wysiwyg>
                 </div>
                 <div class="uk-card-footer">
                     <button class="uk-button uk-button-primary uk-align-right" @click="addReply">Submit</button>
@@ -33,6 +28,7 @@ export default {
     data (){
         return {
             body: '',
+            completed: false
         }
     },
 
@@ -57,6 +53,8 @@ export default {
             // short hand for ES2016 ({data}) => data
             .then(({data}) => {
                 this.body = '';
+
+                this.completed = true;
 
                 flash('Your reply has been posted.', 'success');
 

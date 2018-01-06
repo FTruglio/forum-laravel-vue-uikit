@@ -19,11 +19,14 @@
 			]) !!}
 		</script>
 
+		<link rel="stylesheet" href="{{asset('/css/trix.css')}}" />
+
 		<!-- UIkit CSS -->
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-beta.35/css/uikit.min.css" />
 
 		<!-- UIkit JS -->
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-beta.35/js/uikit.min.js"></script>
+
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-beta.35/js/uikit-icons.min.js"></script>
 
 		<style>
@@ -35,15 +38,15 @@
 
 	<body>
 		<div id="app">
-		@include('layouts.nav')
+			@include('layouts.nav')
 
-		@yield('content')
+			@yield('content')
 
-		<flash message="{{ session('flash') }}"></flash>
-	</div>
+			<flash message="{{ session('flash') }}"></flash>
+		</div>
 
-	<!-- Scripts -->
-	<script src="{{ asset('js/app.js') }}"></script>
-</body>
+		<!-- Scripts -->
+		<script src="{{ asset('js/app.js') }}"></script>
+	</body>
 
-</html>
+	</html>

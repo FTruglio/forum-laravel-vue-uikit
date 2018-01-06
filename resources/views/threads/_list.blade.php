@@ -31,7 +31,7 @@
         </div>
     </div>
     <div class="uk-card-body">
-        <p>{{$thread->body}}</p>
+         <div>{!! $thread->body !!}</div>
     </div>
     <div class="uk-card-footer">
         {{$thread->visits()->count()}} Visits

@@ -30,7 +30,7 @@
 							<input class="uk-input" type="text" name="title" placeholder="Catchy thread title" value="{{old('title')}}" required>
 						</div>
 						<div class="uk-margin">
-							<textarea class="uk-textarea" rows="8" name="body" placeholder="Create something intelligent..." required>{{old('body')}}</textarea>
+							<wysiwyg name="body"></wysiwyg>
 						</div>
 					</fieldset>
 				</div>

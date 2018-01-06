@@ -15,7 +15,7 @@
                 </div>
             </div>
         </div>
-        <textarea class="uk-textarea" id="" cols="30" rows="10" v-model="form.body"></textarea>
+        <wysiwyg name="body" v-model="form.body" :value="form.body"></wysiwyg>
     </div>
     <div class="uk-card-footer uk-child-width-expand" uk-grid>
         <div>
@@ -53,7 +53,7 @@
                 </div>
             </div>
         </div>
-        <p v-text="body"></p>
+        <p v-html="body"></p>
     </div>
     <div class="uk-card-footer" v-if="authorize('owns', dataThread)">
         <button class="uk-button uk-border-rounded uk-button-default uk-button-small" @click="editing = true">Edit</button>
