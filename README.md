@@ -40,7 +40,7 @@ php artisan migrate
 ```
 RECAPTCHA_SITE_KEY=
 RECAPTCHA_SECERET_KEY=
-``
+```
 
 ### Step 4.
 
