@@ -1,9 +1,10 @@
 # Laravel Forum
-===============
-This is an open source forum built with laravel 5.5. & vue 2.0
+======
+
+**This is an open source forum built with laravel 5.5. & vue 2.0
 
 ## Installation
------------------
+------
 
 ### Step 1.
 To run this project, you must have PHP 7 Installed as a prerequisite.
