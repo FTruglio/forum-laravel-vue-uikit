@@ -1,7 +1,6 @@
 # Laravel Forum
-======
 
-**This is an open source forum built with laravel 5.5. & vue 2.0
+This is an open source forum built with laravel 5.5. & vue 2.0
 
 ## Installation
 ------
